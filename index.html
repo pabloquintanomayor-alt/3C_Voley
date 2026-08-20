@@ -1,0 +1,1921 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Vóley · Táctica</title>
+<style>
+:root{
+  --bg:#0d1420; --bg2:#16203150; --panel:#172233; --panel2:#1f2c40;
+  --line:#2c3b52; --txt:#e8eef7; --dim:#93a4bd; --acc:#f6c445; --acc2:#4ea8de;
+  --ok:#6ecb63; --bad:#ff6b6b;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  margin:0; background:var(--bg); color:var(--txt);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  display:flex; flex-direction:column; overflow:hidden;
+  font-size:15px;
+}
+header{
+  display:flex; align-items:center; gap:10px; padding:8px 12px;
+  background:var(--panel); border-bottom:1px solid var(--line); flex:0 0 auto;
+}
+header h1{font-size:15px; margin:0; font-weight:650; letter-spacing:.2px}
+header h1 span{color:var(--acc)}
+nav{display:flex; gap:4px; margin-left:auto}
+nav button{
+  background:var(--panel2); color:var(--dim); border:1px solid var(--line);
+  padding:9px 13px; border-radius:9px; font-size:13.5px; font-weight:600; cursor:pointer;
+}
+nav button.on{background:var(--acc); color:#1b1405; border-color:var(--acc)}
+#reset-all{
+  background:var(--panel2); color:var(--dim); border:1px solid var(--line);
+  padding:9px 12px; border-radius:9px; font-size:14px; font-weight:600; cursor:pointer;
+  margin-left:6px; min-height:42px; min-width:42px; flex:0 0 auto;
+}
+#reset-all:hover{color:var(--txt); border-color:var(--dim)}
+#reset-all .lbl{display:none; font-size:13.5px}
+@media (min-width:600px){ #reset-all .lbl{display:inline} }
+/* Con cuatro pestañas, en móvil el título sobra antes que los botones */
+@media (max-width:620px){
+  header h1{display:none}
+  nav button{padding:9px 9px; font-size:12.5px}
+}
+main{flex:1 1 auto; min-height:0; position:relative}
+section.view{position:absolute; inset:0; display:none; flex-direction:column; min-height:0}
+section.view.on{display:flex}
+
+/* Los botones pasan de línea antes que esconderse. Solo en pantallas
+   estrechas se deslizan, y entonces con barra de desplazamiento visible. */
+.bar{
+  display:flex; flex-wrap:wrap; gap:6px; padding:7px 8px; flex:0 0 auto;
+  background:var(--bg2); border-bottom:1px solid var(--line);
+}
+@media (max-width:620px){
+  .bar{flex-wrap:nowrap; overflow-x:auto; scrollbar-width:thin; padding-bottom:4px}
+  .bar::-webkit-scrollbar{height:4px}
+  .bar::-webkit-scrollbar-thumb{background:var(--line); border-radius:3px}
+}
+.bar button, .bar select, .bar label.tog{
+  flex:0 0 auto; background:var(--panel2); color:var(--txt); border:1px solid var(--line);
+  border-radius:9px; padding:9px 11px; font-size:13px; font-weight:600; cursor:pointer;
+  min-height:42px; display:flex; align-items:center; gap:6px; white-space:nowrap;
+}
+.bar button.on{background:var(--acc2); color:#04121d; border-color:var(--acc2)}
+.bar button.warn{color:var(--bad)}
+.bar .sep{flex:0 0 1px; background:var(--line); margin:2px 3px}
+.bar .grow{flex:1 1 auto}
+.bar select{appearance:none; padding-right:26px;
+  background-image:linear-gradient(45deg,transparent 50%,var(--dim) 50%),linear-gradient(135deg,var(--dim) 50%,transparent 50%);
+  background-position:calc(100% - 14px) 18px,calc(100% - 9px) 18px; background-size:5px 5px,5px 5px; background-repeat:no-repeat}
+
+.stage{flex:1 1 auto; min-height:0; position:relative; background:#0a1018}
+svg.court{position:absolute; inset:0; width:100%; height:100%; touch-action:none; display:block; user-select:none}
+
+.side{
+  flex:0 0 auto; background:var(--panel); border-top:1px solid var(--line);
+  padding:8px 10px; font-size:13px; max-height:34%; overflow:auto;
+}
+.side h3{margin:0 0 5px; font-size:12px; text-transform:uppercase; letter-spacing:.6px; color:var(--dim); font-weight:700}
+.chips{display:flex; flex-wrap:wrap; gap:5px}
+.chip{background:var(--panel2); border:1px solid var(--line); border-radius:7px; padding:4px 8px; font-size:12px; display:flex; align-items:center; gap:5px}
+.dot{width:10px; height:10px; border-radius:50%; flex:0 0 auto}
+.note{color:var(--dim); line-height:1.45; margin:6px 0 0}
+.note b{color:var(--txt)}
+.faults{margin:7px 0 0; padding:0; list-style:none}
+.faults li{color:var(--bad); padding:3px 0 3px 16px; position:relative; line-height:1.35}
+.faults li::before{content:"▲"; position:absolute; left:0; font-size:10px; top:5px}
+.legal{color:var(--ok); font-weight:600; margin:7px 0 0}
+
+/* ---- sesión ---- */
+.ses{flex:1 1 auto; overflow:auto; padding:10px 12px 90px}
+.ses .head{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px}
+.ses input[type=text], .ses input[type=date], .ses textarea{
+  background:var(--panel2); color:var(--txt); border:1px solid var(--line);
+  border-radius:8px; padding:9px 10px; font:inherit; font-size:14px; width:100%;
+}
+.ses .head input[type=text]{flex:2 1 200px; width:auto; font-weight:650}
+.ses .head input[type=date]{flex:1 1 130px; width:auto}
+.blk{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:10px; margin-bottom:9px}
+.blk .top{display:flex; gap:7px; align-items:center; margin-bottom:7px}
+.blk .top input.nm{flex:1 1 auto; font-weight:650}
+.blk .top input.mn{flex:0 0 62px; width:62px; text-align:center}
+.blk .top .mini{background:var(--panel2); border:1px solid var(--line); color:var(--dim);
+  border-radius:8px; width:36px; height:38px; font-size:15px; cursor:pointer; flex:0 0 auto}
+.blk textarea{margin-top:6px; resize:vertical; min-height:52px; line-height:1.4}
+.tot{position:sticky; bottom:0; background:var(--panel); border-top:1px solid var(--line);
+  padding:9px 12px; display:flex; align-items:center; gap:10px; font-weight:650; flex:0 0 auto}
+.tot .big{color:var(--acc); font-size:17px}
+
+/* ---- modo exponer ---- */
+.expobar{
+  position:fixed; bottom:16px; left:50%; transform:translateX(-50%);
+  display:none; gap:8px; z-index:60; padding:8px;
+  background:#0d1420e0; border:1px solid var(--line); border-radius:14px;
+}
+body.expo .expobar{display:flex}
+.expobar button{
+  background:var(--panel2); color:var(--txt); border:1px solid var(--line);
+  border-radius:10px; padding:10px 16px; font-size:15px; font-weight:600;
+  cursor:pointer; min-height:46px; min-width:50px;
+}
+.expobar button:disabled{opacity:.4}
+body.expo header, body.expo .bar{display:none}
+body.expo .side{max-height:24%}
+
+.modal{position:fixed; inset:0; background:#000a; display:none; align-items:center; justify-content:center; padding:18px; z-index:50}
+.modal.on{display:flex}
+.modal .box{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px; width:100%; max-width:420px; max-height:80vh; overflow:auto}
+.modal h2{margin:0 0 10px; font-size:15px}
+.modal .row{display:flex; gap:7px; align-items:center; padding:8px; border:1px solid var(--line); border-radius:9px; margin-bottom:6px; background:var(--panel2)}
+.modal .row span{flex:1 1 auto; font-size:14px}
+.modal .row button{background:none; border:1px solid var(--line); color:var(--dim); border-radius:7px; padding:6px 9px; cursor:pointer; font-size:12px}
+.modal .close{width:100%; margin-top:8px; padding:11px; border-radius:9px; background:var(--panel2); color:var(--txt); border:1px solid var(--line); font-weight:650; cursor:pointer}
+.empty{color:var(--dim); text-align:center; padding:16px; font-size:13px}
+h4.secc{margin:14px 0 8px; font-size:12px; text-transform:uppercase; letter-spacing:.6px;
+  color:var(--dim); font-weight:700; border-bottom:1px solid var(--line); padding-bottom:5px}
+h4.secc:first-child{margin-top:0}
+.jug{display:flex; gap:7px; align-items:center; background:var(--panel);
+  border:1px solid var(--line); border-radius:10px; padding:8px; margin-bottom:7px}
+.jug input.dor{flex:0 0 58px; width:58px; text-align:center; font-weight:700; color:var(--acc)}
+.jug input.nom{flex:1 1 auto; min-width:0}
+.jug select{flex:0 0 118px; background:var(--panel2); color:var(--txt);
+  border:1px solid var(--line); border-radius:8px; padding:9px 6px; font:inherit; font-size:13px}
+.jug .mini{background:var(--panel2); border:1px solid var(--line); color:var(--dim);
+  border-radius:8px; width:34px; height:38px; font-size:15px; cursor:pointer; flex:0 0 auto}
+.alr{display:flex; gap:8px; align-items:center; background:var(--panel);
+  border:1px solid var(--line); border-radius:10px; padding:8px; margin-bottom:6px}
+.alr .rol{flex:0 0 132px; display:flex; align-items:center; gap:7px; font-size:13px; font-weight:600}
+.alr select{flex:1 1 auto; min-width:0; background:var(--panel2); color:var(--txt);
+  border:1px solid var(--line); border-radius:8px; padding:9px 8px; font:inherit; font-size:14px}
+.ficha{
+  background:var(--panel2); color:var(--txt); border:1px solid var(--line);
+  border-radius:9px; padding:9px 12px; font:inherit; font-size:14px; font-weight:600;
+  cursor:pointer; min-height:42px; display:flex; align-items:center; gap:8px; text-align:left;
+}
+.ficha.vacio{color:var(--dim); font-weight:400; font-style:italic}
+.ficha.sel{background:var(--acc); color:#1b1405; border-color:var(--acc)}
+.ficha .dot{width:11px; height:11px}
+.alr .ficha{flex:1 1 auto; min-width:0}
+.banq{display:flex; flex-wrap:wrap; gap:7px}
+
+@media (min-width:900px){
+  section.view.on.split{display:grid; grid-template-columns:1fr 340px; grid-template-rows:auto 1fr}
+  section.view.split .bar{grid-column:1; grid-row:1}
+  section.view.split .stage{grid-column:1; grid-row:2}
+  section.view.split .side{grid-column:2; grid-row:1 / span 2; width:auto; max-height:none;
+    border-top:none; border-left:1px solid var(--line); padding:12px 14px}
+}
+@media print{
+  body{background:#fff; color:#000; overflow:visible; height:auto}
+  header,nav,.bar,.tot,.modal{display:none !important}
+  section.view{position:static; display:none}
+  section.view.on{display:block}
+  .ses{overflow:visible; padding:0}
+  .blk{border:1px solid #bbb; break-inside:avoid; margin-bottom:8px}
+  .ses input,.ses textarea{border:none; background:none; color:#000; padding:2px 0}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Vóley <span>·</span> Táctica</h1>
+  <nav>
+    <button data-tab="piz" class="on">Pizarra</button>
+    <button data-tab="rot">Rotaciones</button>
+    <button data-tab="ses">Sesión</button>
+    <button data-tab="eq">Equipo</button>
+  </nav>
+  <button id="reset-all" aria-label="Restablecer" title="Restablecer esta pantalla">↺<span class="lbl"> Restablecer</span></button>
+</header>
+
+<main>
+  <!-- ============ PIZARRA ============ -->
+  <section class="view on" id="v-piz">
+    <div class="bar" id="piz-bar">
+      <button data-tool="sel" class="on">✥ Mover</button>
+      <button data-tool="move">→ Desplaz.</button>
+      <button data-tool="pass">⇢ Pase</button>
+      <button data-tool="atk">⚡ Ataque</button>
+      <button data-tool="finta">◠ Finta</button>
+      <button data-tool="free">✎ Libre</button>
+      <span class="sep"></span>
+      <button id="p-undo">⌫ Deshacer</button>
+      <button id="p-clear" class="warn">🗑 Limpiar</button>
+      <span class="sep"></span>
+      <button id="p-rival" class="on">Rival</button>
+      <button id="p-ball" class="on">Balón</button>
+      <button id="p-equipo">👥 Plantilla</button>
+      <span class="sep"></span>
+      <button id="p-save">💾 Guardar</button>
+      <button id="p-open">📂 Abrir</button>
+      <button id="p-png">⬇ PNG</button>
+    </div>
+    <div class="bar" id="piz-steps">
+      <button id="st-add">✚ Paso</button>
+      <button id="st-prev">◀</button>
+      <button id="st-num" style="min-width:88px; justify-content:center">sin pasos</button>
+      <button id="st-next">▶</button>
+      <button id="st-play">▶ Reproducir</button>
+      <span class="sep"></span>
+      <button id="st-note">✎ Texto</button>
+      <button id="st-trail" class="on">Rastro</button>
+      <button id="st-del" class="warn">✕ Borrar paso</button>
+      <span class="sep"></span>
+      <button class="js-girar">⟳ Girar</button>
+      <button class="js-expo">⛶ Exponer</button>
+    </div>
+    <div class="stage"><svg class="court" id="svg-piz"></svg></div>
+  </section>
+
+  <!-- ============ ROTACIONES ============ -->
+  <section class="view split" id="v-rot">
+    <div class="bar" id="rot-bar">
+      <select id="r-sys"></select>
+      <span class="sep"></span>
+      <button id="r-prev">◀</button>
+      <button id="r-num" style="min-width:74px; justify-content:center">R1</button>
+      <button id="r-next">▶</button>
+      <span class="sep"></span>
+      <button data-fase="saque" class="on">Saque</button>
+      <button data-fase="recep">Recepción</button>
+      <button data-fase="ataque" title="Colocación y ataque">Ataque</button>
+      <button data-fase="defensa" title="Defensa y bloqueo">Defensa</button>
+      <span class="sep dfonly"></span>
+      <select id="r-defzona" class="dfonly"></select>
+      <button id="r-def6" class="dfonly">6 atrás</button>
+      <span class="sep atonly"></span>
+      <select id="r-remat" class="atonly" title="Quién remata"></select>
+      <button id="r-golpe" class="jugonly" title="Remate fuerte o finta por encima del bloqueo">⚡ Remate</button>
+      <span class="sep"></span>
+      <button id="r-lib" class="on">Líbero</button>
+      <button id="r-rival">Rival</button>
+      <button id="r-reset">↺ Reiniciar</button>
+      <button id="r-png">⬇ PNG</button>
+      <span class="sep"></span>
+      <button class="js-girar">⟳ Girar</button>
+      <button class="js-expo">⛶ Exponer</button>
+    </div>
+    <div class="stage"><svg class="court" id="svg-rot"></svg></div>
+    <div class="side" id="rot-side"></div>
+  </section>
+
+
+  <!-- ============ EQUIPO ============ -->
+  <section class="view" id="v-eq">
+    <div class="bar">
+      <button id="e-add">✚ Jugador</button>
+      <span class="sep"></span>
+      <select id="e-sys"></select>
+      <button id="e-auto">Asignar por posición</button>
+      <span class="sep"></span>
+      <button id="e-vaciar" class="warn">🗑 Vaciar plantilla</button>
+    </div>
+    <div class="ses" id="eq-body">
+      <h4 class="secc">Plantilla</h4>
+      <div id="e-list"></div>
+      <h4 class="secc">Alineación · orden de saque</h4>
+      <p class="note" id="e-alin-nota"></p>
+      <div id="e-alin"></div>
+      <h4 class="secc">Banquillo</h4>
+      <p class="note" id="e-banq-nota"></p>
+      <div id="e-banq" class="banq"></div>
+    </div>
+  </section>
+  <!-- ============ SESIÓN ============ -->
+  <section class="view" id="v-ses">
+    <div class="bar">
+      <select id="s-add">
+        <option value="">+ Añadir bloque…</option>
+      </select>
+      <span class="sep"></span>
+      <button id="s-save">💾 Guardar</button>
+      <button id="s-open">📂 Abrir</button>
+      <button id="s-new">✚ Nueva</button>
+      <button id="s-print">🖨 Imprimir</button>
+    </div>
+    <div class="ses" id="ses-body">
+      <div class="head">
+        <input type="text" id="s-title" placeholder="Título de la sesión">
+        <input type="date" id="s-date">
+      </div>
+      <div id="s-blocks"></div>
+    </div>
+    <div class="tot">Duración total: <span class="big" id="s-total">0 min</span></div>
+  </section>
+</main>
+
+<div class="expobar" id="expobar">
+  <button id="ex-prev" aria-label="Anterior">◀</button>
+  <button id="ex-next" aria-label="Siguiente">▶</button>
+  <button id="ex-girar" aria-label="Girar la pista">⟳</button>
+  <button id="ex-out">✕ Salir</button>
+</div>
+
+<div class="modal" id="modal"><div class="box">
+  <h2 id="m-title">Guardadas</h2>
+  <div id="m-list"></div>
+  <button class="close" id="m-close">Cerrar</button>
+</div></div>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+
+/* ================= GEOMETRÍA DE LA PISTA =================
+   Pista 9 x 18 m  ->  900 x 1800 unidades (1 m = 100 u)
+   Red en y = 900. Línea de ataque a 3 m: y = 600 y y = 1200.
+   Nuestro campo: y de 900 a 1800.  Campo rival: y de 0 a 900.       */
+const CW = 900, CH = 1800, NET = 900;
+
+// Zonas de nuestro campo (mirando a la red = hacia -y, la derecha es +x)
+const Z = {1:{x:675,y:1500}, 2:{x:675,y:1060}, 3:{x:450,y:1060}, 4:{x:225,y:1060},
+           5:{x:225,y:1500}, 6:{x:450,y:1500}};
+// Zonas del rival (espejo)
+const ZR = {1:{x:225,y:300}, 2:{x:225,y:740}, 3:{x:450,y:740}, 4:{x:675,y:740},
+            5:{x:675,y:300}, 6:{x:450,y:300}};
+
+// La misma pista vista en vertical o girada -90°, donde (x,y) pasa a (y,-x).
+const VB = {
+  fullV: "-170 -250 1240 2220",  fullH: "-250 -1070 2220 1240",
+  halfV: "-170 840 1240 1290",   halfH: "840 -1070 1290 1240",
+  // en ataque y defensa hace falta ver el campo de enfrente
+  jugadaV: "-170 -170 1240 2300", jugadaH: "-170 -1070 2300 1240"
+};
+let LAND = false;   // pista en horizontal
+let EXPO = false;   // modo exponer, sin menús
+function gopen(){ return LAND ? '<g id="gr" transform="rotate(-90)">' : '<g id="gr">'; }
+// Los jugadores y los textos se contragiran para que se lean derechos.
+function ptf(x, y){ return LAND ? `translate(${x},${y}) rotate(90)` : `translate(${x},${y})`; }
+function trot(x, y){ return LAND ? ` transform="rotate(90, ${x}, ${y})"` : ''; }
+
+const C = {
+  free:"#14567a", court:"#e9a45c", atk:"#dd8a3a", line:"#ffffff",
+  us:"#10263f", usR:"#7ec8e3", them:"#7a1420", themR:"#ff9aa2", ball:"#ffd166"
+};
+
+/* ================= SVG BASE ================= */
+function defs(){
+  return `<defs>
+    <marker id="ar-w" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="4.2" markerHeight="4.2" orient="auto-start-reverse">
+      <path d="M0,0.6 L10,5 L0,9.4 z" fill="#ffffff"/></marker>
+    <marker id="ar-r" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+      <path d="M0,0.6 L10,5 L0,9.4 z" fill="#ff4d3d"/></marker>
+    <marker id="ar-y" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="4.2" markerHeight="4.2" orient="auto-start-reverse">
+      <path d="M0,0.6 L10,5 L0,9.4 z" fill="#ffd166"/></marker>
+    <clipPath id="clip-us"><rect x="0" y="900" width="900" height="900"/></clipPath>
+    <marker id="ar-v" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="4.6" markerHeight="4.6" orient="auto-start-reverse">
+      <path d="M0,0.6 L10,5 L0,9.4 z" fill="#8ce99a"/></marker>
+  </defs>`;
+}
+
+function courtSVG(half){
+  const y0 = half ? NET : 0;
+  const h  = half ? CH-NET : CH;
+  let s = `<rect x="-400" y="-400" width="1700" height="2600" fill="${C.free}"/>`;
+  s += `<rect x="0" y="${y0}" width="${CW}" height="${h}" fill="${C.court}"/>`;
+  // zonas de ataque (3 m junto a la red)
+  s += `<rect x="0" y="${NET}" width="${CW}" height="300" fill="${C.atk}" opacity=".55"/>`;
+  if(!half) s += `<rect x="0" y="600" width="${CW}" height="300" fill="${C.atk}" opacity=".55"/>`;
+  // líneas
+  const L = (x1,y1,x2,y2,w=9) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${C.line}" stroke-width="${w}" stroke-linecap="square"/>`;
+  s += `<rect x="0" y="${y0}" width="${CW}" height="${h}" fill="none" stroke="${C.line}" stroke-width="9"/>`;
+  s += L(0,1200,CW,1200);
+  if(!half) s += L(0,600,CW,600);
+  // red
+  s += `<line x1="-90" y1="${NET}" x2="${CW+90}" y2="${NET}" stroke="#0d1420" stroke-width="16"/>`;
+  s += `<line x1="-90" y1="${NET}" x2="${CW+90}" y2="${NET}" stroke="#e8eef7" stroke-width="10" stroke-dasharray="14 10"/>`;
+  s += `<circle cx="-90" cy="${NET}" r="16" fill="#0d1420"/><circle cx="${CW+90}" cy="${NET}" r="16" fill="#0d1420"/>`;
+  // números de zona (tenues, en su franja: delanteras junto a la línea de ataque, zagueras junto al fondo)
+  for(const k in Z){
+    const front = Z[k].y < 1200, ty = front ? 1178 : 1772;
+    s += `<text x="${Z[k].x}" y="${ty}"${trot(Z[k].x, ty)} fill="#00000030" font-size="80" font-weight="800" text-anchor="middle">${k}</text>`;
+  }
+  if(!half) for(const k in ZR){
+    const front = ZR[k].y > 600, ty = front ? 650 : 92;
+    s += `<text x="${ZR[k].x}" y="${ty}"${trot(ZR[k].x, ty)} fill="#00000026" font-size="70" font-weight="800" text-anchor="middle">${k}</text>`;
+  }
+  return s;
+}
+
+function playerSVG(p){
+  const r = 56;
+  const fill = p.fill || (p.team==='them' ? C.them : C.us);
+  const ring = p.ring || (p.team==='them' ? C.themR : C.usR);
+  const fs = String(p.txt).length > 2 ? 34 : 42;
+  return `<g data-pid="${p.id}" transform="${ptf(p.x, p.y)}" style="cursor:grab">
+    <circle r="${r}" fill="${fill}" stroke="${ring}" stroke-width="${p.bad?10:7}" ${p.bad?'stroke-dasharray="14 9"':''}/>
+    ${p.bad?`<circle r="${r+16}" fill="none" stroke="#ff4d3d" stroke-width="7" opacity=".85"/>`:''}
+    <text y="${fs*0.36}" text-anchor="middle" font-size="${fs}" font-weight="800" fill="#fff">${p.txt}</text>
+    ${p.sub?`<text y="${r+34}" text-anchor="middle" font-size="30" font-weight="700" fill="#ffffffdd" stroke="#00000055" stroke-width="6" paint-order="stroke">${p.sub}</text>`:''}
+  </g>`;
+}
+
+function shapeSVG(s){
+  const p = s.p;
+  if(s.t==='free'){
+    const d = p.map((q,i)=>(i?'L':'M')+q[0]+' '+q[1]).join(' ');
+    return `<path d="${d}" fill="none" stroke="#ffffff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" opacity=".92"/>`;
+  }
+  const [a,b] = [p[0], p[p.length-1]];
+  if(s.t==='move')
+    return `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="#fff" stroke-width="12" stroke-linecap="round" marker-end="url(#ar-w)"/>`;
+  if(s.t==='pass')
+    return `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="#ffd166" stroke-width="12" stroke-dasharray="30 20" stroke-linecap="round" marker-end="url(#ar-y)"/>`;
+  if(s.t==='finta'){
+    // la finta va por encima del bloqueo: arco alto y trazo blando, punteado
+    const mx=(a[0]+b[0])/2, my=(a[1]+b[1])/2, dx=b[0]-a[0], dy=b[1]-a[1];
+    const len=Math.hypot(dx,dy)||1, nx=-dy/len*115, ny=dx/len*115;
+    return `<path d="M${a[0]} ${a[1]} Q${mx+nx} ${my+ny} ${b[0]} ${b[1]}" fill="none" stroke="#8ce99a"
+              stroke-width="9" stroke-dasharray="4 22" stroke-linecap="round" marker-end="url(#ar-v)"/>`;
+  }
+  // ataque: línea gruesa quebrada
+  const mx=(a[0]+b[0])/2, my=(a[1]+b[1])/2, dx=b[0]-a[0], dy=b[1]-a[1];
+  const len=Math.hypot(dx,dy)||1, nx=-dy/len*46, ny=dx/len*46;
+  return `<path d="M${a[0]} ${a[1]} Q${mx+nx} ${my+ny} ${b[0]} ${b[1]}" fill="none" stroke="#ff4d3d" stroke-width="15" stroke-linecap="round" marker-end="url(#ar-r)"/>`;
+}
+
+function toCourt(svg, ev){
+  const pt = svg.createSVGPoint();
+  pt.x = ev.clientX; pt.y = ev.clientY;
+  const m = (svg.querySelector('#gr') || svg).getScreenCTM().inverse();
+  const q = pt.matrixTransform(m);
+  return [Math.round(q.x), Math.round(q.y)];
+}
+
+/* ================= EXPORTAR PNG ================= */
+// Guarda la imagen: en la versión web pide permiso al visor, en el archivo
+// local descarga directamente. El mismo código sirve para las dos.
+async function saveBlob(blob, name){
+  let dl = null;
+  try{
+    if(typeof claude !== 'undefined' && claude && typeof claude.use === 'function')
+      dl = await claude.use('downloads');
+  }catch(e){ dl = null; }
+  if(dl){
+    try{ await dl.save({filename:name, data:blob}); }
+    catch(e){
+      if(e && e.code === 'declined') return;
+      alert('No se pudo guardar la imagen.' + (e && e.message ? '\n\n' + e.message : ''));
+    }
+    return;
+  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+function exportPNG(svg, name){
+  const clone = svg.cloneNode(true);
+  const vb = svg.getAttribute('viewBox').split(/\s+/).map(Number);
+  const sc = Math.min(1800/vb[2], 1800/vb[3], 2.2);
+  clone.setAttribute('width', Math.round(vb[2]*sc));
+  clone.setAttribute('height', Math.round(vb[3]*sc));
+  clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  const src = new XMLSerializer().serializeToString(clone);
+  const img = new Image();
+  img.onload = () => {
+    const cv = document.createElement('canvas');
+    cv.width = img.width; cv.height = img.height;
+    const g = cv.getContext('2d');
+    g.fillStyle = '#0d1420'; g.fillRect(0,0,cv.width,cv.height);
+    g.drawImage(img,0,0);
+    cv.toBlob(b => { saveBlob(b, name + '.png'); });
+  };
+  img.onerror = () => alert('No se pudo exportar la imagen en este navegador.');
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(src);
+}
+
+/* ================= ALMACENAMIENTO ================= */
+const DB = {
+  // Copia en memoria: si el navegador bloquea el almacenamiento, guardar y abrir
+  // siguen funcionando mientras la pestaña esté abierta.
+  mem: {},
+  get(k, d){
+    try{
+      const v = localStorage.getItem(k);
+      if(v !== null) return JSON.parse(v);
+    }catch(e){}
+    return (k in DB.mem) ? DB.mem[k] : d;
+  },
+  avisado: false,
+  set(k, v){
+    DB.mem[k] = v;
+    try{ localStorage.setItem(k, JSON.stringify(v)); return true; }
+    catch(e){
+      if(!DB.avisado){
+        DB.avisado = true;
+        alert(e && e.name === 'QuotaExceededError'
+          ? 'No queda sitio para guardar más.\n\nBorra alguna jugada o sesión antigua desde «📂 Abrir».'
+          : 'Este navegador no permite guardar datos en esta página, así que las jugadas y sesiones no se conservarán al cerrarla.\n\nSuele ocurrir en ventanas de incógnito. Mientras tanto puedes guardar las pizarras con «⬇ PNG».');
+      }
+      return false;
+    }
+  }
+};
+
+/* ================= PESTAÑAS ================= */
+$$('nav button').forEach(b => b.onclick = () => {
+  stopPlay();
+  $$('nav button').forEach(x => x.classList.toggle('on', x===b));
+  $$('section.view').forEach(v => v.classList.toggle('on', v.id === 'v-'+b.dataset.tab));
+  if(b.dataset.tab==='rot') drawRot();
+  if(b.dataset.tab==='piz') drawPiz();
+  if(b.dataset.tab==='eq')  renderEquipo();
+});
+
+/* ==========================================================
+   ================= 1 · PIZARRA TÁCTICA ====================
+   ========================================================== */
+const svgP = $('#svg-piz');
+let tool = 'sel';
+let board = defaultBoard();
+
+function defaultBoard(){
+  const ps = [];
+  for(const k in Z)  ps.push({id:'u'+k, team:'us',   txt:k, x:Z[k].x,  y:Z[k].y});
+  for(const k in ZR) ps.push({id:'t'+k, team:'them', txt:k, x:ZR[k].x, y:ZR[k].y});
+  return { players: ps, ball:{x:450, y:1420}, shapes:[], rival:true, showBall:true,
+           steps:[], cur:-1, rastro:true, plantilla:false, equipo:{} };
+}
+
+/* --- pasos de la jugada ---
+   Cada paso es una foto completa: dónde está cada jugador, el balón y los trazos.
+   «✚ Paso» duplica el paso actual y avanza, así el anterior queda intacto.   */
+function snap(){
+  return {
+    pl: board.players.map(p => ({id:p.id, x:p.x, y:p.y})),
+    ball: {x:board.ball.x, y:board.ball.y},
+    shapes: JSON.parse(JSON.stringify(board.shapes)),
+    nota: ''
+  };
+}
+function applySnap(s){
+  s.pl.forEach(q => { const p = board.players.find(p => p.id === q.id); if(p){ p.x = q.x; p.y = q.y; } });
+  board.ball.x = s.ball.x; board.ball.y = s.ball.y;
+  board.shapes = JSON.parse(JSON.stringify(s.shapes));
+}
+// vuelca lo que hay en pantalla dentro del paso que se está mostrando
+function syncStep(){
+  if(board.cur < 0 || !board.steps[board.cur]) return;
+  const nota = board.steps[board.cur].nota;
+  board.steps[board.cur] = snap();
+  board.steps[board.cur].nota = nota;
+}
+function wrapText(t, max, maxLines){
+  const words = String(t).split(/\s+/).filter(Boolean), lines = [];
+  let cur = '';
+  for(const w of words){
+    if(cur && (cur + ' ' + w).length > max){ lines.push(cur); cur = w; }
+    else cur = cur ? cur + ' ' + w : w;
+  }
+  if(cur) lines.push(cur);
+  return lines.slice(0, maxLines);
+}
+
+function drawPiz(){
+  svgP.setAttribute('viewBox', LAND ? VB.fullH : VB.fullV);
+  let s = defs() + gopen() + courtSVG(false);
+  s += board.shapes.map(shapeSVG).join('');
+  s += `<g id="piz-prev"></g>`;
+
+  // rastro: dónde estaba cada uno en el paso anterior y por dónde ha venido
+  if(board.rastro && board.cur > 0 && board.steps[board.cur - 1]){
+    const pv = board.steps[board.cur - 1];
+    pv.pl.forEach(q => {
+      const p = board.players.find(p => p.id === q.id);
+      if(!p || (!board.rival && p.team === 'them')) return;
+      s += `<circle cx="${q.x}" cy="${q.y}" r="56" fill="none" stroke="#ffffff"
+              stroke-width="6" stroke-dasharray="14 12" opacity=".3"/>`;
+      if(Math.hypot(p.x - q.x, p.y - q.y) > 60)
+        s += `<line x1="${q.x}" y1="${q.y}" x2="${p.x}" y2="${p.y}" stroke="#ffffff"
+                stroke-width="10" stroke-linecap="round" opacity=".55" marker-end="url(#ar-w)"/>`;
+    });
+    if(board.showBall && Math.hypot(board.ball.x - pv.ball.x, board.ball.y - pv.ball.y) > 60)
+      s += `<line x1="${pv.ball.x}" y1="${pv.ball.y}" x2="${board.ball.x}" y2="${board.ball.y}"
+              stroke="#ffd166" stroke-width="10" stroke-dasharray="26 18" stroke-linecap="round"
+              opacity=".8" marker-end="url(#ar-y)"/>`;
+  }
+
+  // Rótulo del paso y su texto, en la franja libre de arriba.
+  // Girada la pista, «hacia abajo» en pantalla es restar en x, no sumar en y.
+  if(board.cur >= 0 && board.steps.length){
+    const ls = wrapText(board.steps[board.cur].nota, 46, 2);
+    const pos = i => LAND ? {x:980 - i * 62, y:860} : {x:450, y:-178 + i * 66};
+    const b = pos(0);
+    s += `<text x="${b.x}" y="${b.y}"${trot(b.x, b.y)} text-anchor="middle" font-size="60"
+            font-weight="800" fill="#ffffff" opacity=".9">Paso ${board.cur + 1} / ${board.steps.length}</text>`;
+    ls.forEach((l, i) => {
+      const q = pos(i + 1);
+      s += `<text x="${q.x}" y="${q.y}"${trot(q.x, q.y)} text-anchor="middle" font-size="48"
+              font-weight="600" fill="#ffd166">${esc(l)}</text>`;
+    });
+  }
+
+  // con la plantilla activada, nuestros seis son los seis primeros de tu equipo
+  const conEquipo = board.plantilla && equipo.length;
+  s += board.players.filter(p => board.rival || p.team === 'us').map(p => {
+    if(!conEquipo || p.team !== 'us') return playerSVG(p);
+    const j = jugadorPorId((board.equipo || {})[p.id]);
+    if(!j) return playerSVG(p);
+    return playerSVG(Object.assign({}, p, {
+      txt: j.dorsal || p.txt,
+      sub: nombreCorto(j),
+      fill: (COLPOS[j.pos] || C.us) + 'ee',
+      ring: '#00000055'
+    }));
+  }).join('');
+  if(board.showBall)
+    s += `<g data-pid="ball" transform="${ptf(board.ball.x, board.ball.y)}" style="cursor:grab">
+            <circle r="34" fill="${C.ball}" stroke="#7a5a00" stroke-width="6"/>
+            <path d="M-34 0 Q0 -20 34 0 M-34 0 Q0 20 34 0" fill="none" stroke="#7a5a00" stroke-width="5"/>
+          </g>`;
+  s += '</g>';
+  svgP.innerHTML = s;
+  $('#st-num').textContent = board.steps.length ? `${board.cur + 1} / ${board.steps.length}` : 'sin pasos';
+  $('#st-prev').disabled = board.cur <= 0;
+  $('#st-next').disabled = board.cur < 0 || board.cur >= board.steps.length - 1;
+  [$('#st-prev'), $('#st-next')].forEach(b => b.style.opacity = b.disabled ? .4 : 1);
+}
+
+$$('#piz-bar button[data-tool]').forEach(b => b.onclick = () => {
+  tool = b.dataset.tool;
+  $$('#piz-bar button[data-tool]').forEach(x => x.classList.toggle('on', x===b));
+});
+$('#p-undo').onclick  = () => { board.shapes.pop(); syncStep(); drawPiz(); };
+$('#p-clear').onclick = () => { stopPlay(); if(confirm('¿Limpiar la pizarra entera, pasos incluidos?')){ board = defaultBoard(); drawPiz(); } };
+$('#p-rival').onclick = e => { board.rival = !board.rival; e.currentTarget.classList.toggle('on', board.rival); drawPiz(); };
+$('#p-ball').onclick  = e => { board.showBall = !board.showBall; e.currentTarget.classList.toggle('on', board.showBall); drawPiz(); };
+$('#p-equipo').onclick = e => {
+  if(!equipo.length) return alert('Primero añade jugadores en la pestaña Equipo.');
+  board.plantilla = !board.plantilla;
+  // la primera vez reparte a los seis primeros de la plantilla
+  if(board.plantilla && !Object.keys(board.equipo || {}).length){
+    board.equipo = {};
+    equipo.slice(0, 6).forEach((j, i) => board.equipo['u' + (i + 1)] = j.id);
+  }
+  e.currentTarget.classList.toggle('on', board.plantilla);
+  syncStep(); drawPiz();
+};
+$('#p-png').onclick   = () => exportPNG(svgP, board.cur >= 0 ? `jugada-paso${board.cur+1}` : 'jugada');
+
+/* --- pasos --- */
+let playTimer = null;
+function setPlayBtn(){
+  $('#st-play').textContent = playTimer ? '⏸ Pausar' : '▶ Reproducir';
+  $('#st-play').classList.toggle('on', !!playTimer);
+}
+function stopPlay(){ if(playTimer){ clearInterval(playTimer); playTimer = null; setPlayBtn(); } }
+function goStep(i){
+  syncStep();
+  board.cur = i;
+  applySnap(board.steps[i]);
+  drawPiz();
+}
+$('#st-add').onclick = () => {
+  stopPlay();
+  syncStep();
+  const s = board.cur >= 0 ? JSON.parse(JSON.stringify(board.steps[board.cur])) : snap();
+  board.steps.splice(board.cur + 1, 0, s);
+  board.cur++;
+  drawPiz();
+};
+$('#st-prev').onclick = () => { stopPlay(); if(board.cur > 0) goStep(board.cur - 1); };
+$('#st-next').onclick = () => { stopPlay(); if(board.cur < board.steps.length - 1) goStep(board.cur + 1); };
+$('#st-num').onclick  = () => { stopPlay(); if(board.steps.length) goStep(0); };
+$('#st-note').onclick = () => {
+  if(board.cur < 0) return alert('Primero crea un paso con «✚ Paso».');
+  const t = prompt('Texto del paso (se ve en pantalla y sale en el PNG):', board.steps[board.cur].nota || '');
+  if(t === null) return;
+  board.steps[board.cur].nota = t;
+  drawPiz();
+};
+$('#st-del').onclick = () => {
+  stopPlay();
+  if(board.cur < 0) return;
+  board.steps.splice(board.cur, 1);
+  board.cur = Math.min(board.cur, board.steps.length - 1);
+  if(board.cur >= 0) applySnap(board.steps[board.cur]);
+  drawPiz();
+};
+$('#st-trail').onclick = e => { board.rastro = !board.rastro; e.currentTarget.classList.toggle('on', board.rastro); drawPiz(); };
+$('#st-play').onclick = () => {
+  if(playTimer) return stopPlay();
+  if(board.steps.length < 2) return alert('Necesitas al menos dos pasos para reproducir.');
+  syncStep();
+  board.cur = 0; applySnap(board.steps[0]); drawPiz();
+  playTimer = setInterval(() => {
+    if(board.cur >= board.steps.length - 1) return stopPlay();
+    board.cur++; applySnap(board.steps[board.cur]); drawPiz();
+  }, 1700);
+  setPlayBtn();
+};
+
+$('#p-save').onclick = () => {
+  const n = prompt('Nombre de la jugada:');
+  if(!n) return;
+  const all = DB.get('vb_jugadas', {});
+  syncStep();
+  all[n] = {players:board.players, ball:board.ball, shapes:board.shapes, rival:board.rival,
+            showBall:board.showBall, steps:board.steps, cur:board.cur, rastro:board.rastro,
+            plantilla:board.plantilla, equipo:board.equipo};
+  DB.set('vb_jugadas', all);
+  alert('Guardada: ' + n);
+};
+$('#p-open').onclick = () => {
+  const all = DB.get('vb_jugadas', {});
+  openModal('Jugadas guardadas', Object.keys(all), n => {
+    board = Object.assign(defaultBoard(), JSON.parse(JSON.stringify(all[n])));
+    drawPiz(); closeModal();
+  }, n => {
+    const a = DB.get('vb_jugadas', {}); delete a[n]; DB.set('vb_jugadas', a);
+  });
+};
+
+/* --- arrastre y dibujo --- */
+let drag = null, drawing = null;
+svgP.addEventListener('pointerdown', ev => {
+  stopPlay();
+  const g = ev.target.closest('[data-pid]');
+  const c = toCourt(svgP, ev);
+  if(g && tool === 'sel'){
+    const id = g.dataset.pid;
+    const o = id==='ball' ? board.ball : board.players.find(p => p.id===id);
+    drag = {o, g, id, dx:c[0]-o.x, dy:c[1]-o.y, cx:ev.clientX, cy:ev.clientY};
+    try{ svgP.setPointerCapture(ev.pointerId); }catch(e){}
+    ev.preventDefault(); return;
+  }
+  if(tool !== 'sel'){
+    drawing = {t:tool, p:[c]};
+    try{ svgP.setPointerCapture(ev.pointerId); }catch(e){}
+    ev.preventDefault();
+  }
+});
+svgP.addEventListener('pointermove', ev => {
+  if(drag){
+    const c = toCourt(svgP, ev);
+    drag.o.x = c[0]-drag.dx; drag.o.y = c[1]-drag.dy;
+    drag.g.setAttribute('transform', ptf(drag.o.x, drag.o.y));
+    ev.preventDefault(); return;
+  }
+  if(drawing){
+    const c = toCourt(svgP, ev);
+    if(drawing.t === 'free'){
+      const last = drawing.p[drawing.p.length-1];
+      if(Math.hypot(c[0]-last[0], c[1]-last[1]) > 14) drawing.p.push(c);
+    } else {
+      drawing.p[1] = c;
+    }
+    const prev = svgP.querySelector('#piz-prev');
+    if(prev && drawing.p.length > 1) prev.innerHTML = shapeSVG(drawing);
+    ev.preventDefault();
+  }
+});
+function endPiz(ev){
+  const tocado = !!drawing || !!drag;
+  const seco = drag && ev && Math.hypot(ev.clientX - drag.cx, ev.clientY - drag.cy) < 7;
+  const id = drag && drag.id;
+  if(drawing && drawing.p.length > 1) board.shapes.push(drawing);
+  drag = null; drawing = null;
+  if(tocado){ syncStep(); drawPiz(); }
+  // un toque seco sobre uno de los nuestros, con la plantilla puesta, abre el cambio
+  if(seco && id && id[0] === 'u' && board.plantilla && equipo.length && tool === 'sel')
+    abreCambioPizarra(id);
+}
+svgP.addEventListener('pointerup', endPiz);
+svgP.addEventListener('pointercancel', endPiz);
+
+/* ==========================================================
+   ============= 2 · ROTACIONES Y SISTEMAS ==================
+   ==========================================================
+   Orden de saque L[0..5]:  el jugador de zona 1 saca primero,
+   luego el de zona 2, 3, 4, 5 y 6.  En la rotación r:
+       zona k  ->  L[(r + k - 1) mod 6]
+   Los opuestos en pista están a 3 puestos en ese orden.        */
+
+const R_C  = "#f6c445", R_R = "#4ea8de", R_M = "#6ecb63", R_O = "#e56399", R_J = "#8d99ae";
+const SYS = {
+  '6-6': {
+    nom:'6-6 · sin especialización', corto:'6-6',
+    L:[{k:'J1',t:'J1',c:R_J},{k:'J2',t:'J2',c:R_J},{k:'J3',t:'J3',c:R_J},
+       {k:'J4',t:'J4',c:R_J},{k:'J5',t:'J5',c:R_J},{k:'J6',t:'J6',c:R_J}],
+    set:'z3', setPos:{x:450,y:1000},
+    txt:'Nadie se especializa: los seis jugadores lo hacen todo y colocan cuando les toca. Coloca quien está en zona 3. Es el sistema de iniciación — con él se aprende a leer la rotación antes de repartir roles.'
+  },
+  '6-3': {
+    nom:'6-3 · tres colocadores', corto:'6-3',
+    L:[{k:'C1',t:'C1',c:R_C},{k:'A1',t:'A1',c:R_R},{k:'C2',t:'C2',c:R_C},
+       {k:'A2',t:'A2',c:R_R},{k:'C3',t:'C3',c:R_C},{k:'A3',t:'A3',c:R_R}],
+    set:'frontC3', setPos:{x:450,y:1000},
+    txt:'Tres colocadores alternados con tres atacantes: siempre hay un colocador en la red. Coloca el colocador delantero desde zona 3. Paso intermedio entre el 6-6 y el 4-2, muy útil en categorías de formación.'
+  },
+  '4-2': {
+    nom:'4-2 clásico · coloca desde zona 3', corto:'4-2 clásico',
+    L:[{k:'C1',t:'C1',c:R_C},{k:'R1',t:'R1',c:R_R},{k:'M1',t:'M1',c:R_M},
+       {k:'C2',t:'C2',c:R_C},{k:'R2',t:'R2',c:R_R},{k:'M2',t:'M2',c:R_M}],
+    set:'frontC3', setPos:{x:450,y:1000},
+    txt:'Dos colocadores opuestos entre sí; coloca siempre el que está delantero, desde zona 3. Deja solo 2 atacantes en la red, pero el colocador nunca tiene que penetrar: es el sistema más fácil de estabilizar.'
+  },
+  '4-2i': {
+    nom:'4-2 internacional · coloca desde zona 2', corto:'4-2 internac.',
+    L:[{k:'C1',t:'C1',c:R_C},{k:'R1',t:'R1',c:R_R},{k:'M1',t:'M1',c:R_M},
+       {k:'C2',t:'C2',c:R_C},{k:'R2',t:'R2',c:R_R},{k:'M2',t:'M2',c:R_M}],
+    set:'frontC2', setPos:{x:690,y:1000},
+    txt:'Igual que el 4-2, pero el colocador delantero se desplaza a zona 2 para colocar. Libera la zona 3 para el central y permite atacar por 4 y por 3. Introduce el desplazamiento del colocador sin pedirle todavía que penetre desde atrás.'
+  },
+  '6-2': {
+    nom:'6-2 · coloca el zaguero', corto:'6-2',
+    L:[{k:'C1',t:'C1',c:R_C},{k:'R1',t:'R1',c:R_R},{k:'M1',t:'M1',c:R_M},
+       {k:'C2',t:'C2',c:R_C},{k:'R2',t:'R2',c:R_R},{k:'M2',t:'M2',c:R_M}],
+    set:'backC', setPos:{x:660,y:1000},
+    txt:'Dos colocadores opuestos; coloca siempre el que está zaguero, penetrando a la red. Ventaja: siempre hay 3 atacantes delante. Exige penetración limpia y buena recepción, porque el colocador viene de atrás.'
+  },
+  '5-1': {
+    nom:'5-1 · un solo colocador', corto:'5-1',
+    L:[{k:'C',t:'C',c:R_C},{k:'R1',t:'R1',c:R_R},{k:'M1',t:'M1',c:R_M},
+       {k:'O',t:'O',c:R_O},{k:'R2',t:'R2',c:R_R},{k:'M2',t:'M2',c:R_M}],
+    set:'only', setPos:{x:660,y:1000},
+    txt:'Un único colocador durante todo el set, con el opuesto justo enfrente. Alterna 3 rotaciones con 3 atacantes (colocador zaguero) y 3 con solo 2 (colocador delantero). Es el sistema dominante en alto nivel: máxima continuidad de colocación.'
+  }
+};
+const ROLNAME = {C:'Colocador', C1:'Colocador 1', C2:'Colocador 2', C3:'Colocador 3',
+  R1:'Receptor 1', R2:'Receptor 2', M1:'Central 1', M2:'Central 2', O:'Opuesto',
+  A1:'Atacante 1', A2:'Atacante 2', A3:'Atacante 3',
+  J1:'Jugador 1', J2:'Jugador 2', J3:'Jugador 3', J4:'Jugador 4', J5:'Jugador 5', J6:'Jugador 6'};
+
+const FRONT = [4,3,2], BACK = [5,6,1];
+let rSys = '5-1', rRot = 0, rFase = 'saque', rLib = true;
+let rPos = DB.get('vb_rot', {});   // { "sys|rot|fase": {zona:{x,y}} }
+const svgR = $('#svg-rot');
+
+const selSys = $('#r-sys');
+for(const k in SYS){
+  const o = document.createElement('option');
+  o.value = k; o.textContent = SYS[k].corto;
+  selSys.appendChild(o);
+}
+selSys.value = rSys;
+
+// zona -> rol para la rotación actual
+function zoneRoles(sys, rot){
+  const L = SYS[sys].L, m = {};
+  for(let k=1; k<=6; k++) m[k] = L[(rot + k - 1) % 6];
+  return m;
+}
+// zona del colocador que distribuye
+function setterZone(sys, zr){
+  const mode = SYS[sys].set;
+  const isC = z => zr[z].k[0] === 'C';
+  if(mode === 'only')    for(let z=1; z<=6; z++) if(isC(z)) return z;
+  if(mode === 'z3')      return 3;
+  if(mode === 'frontC3' || mode === 'frontC2'){
+    for(const z of [3,2,4]) if(isC(z)) return z;
+    return 3;
+  }
+  if(mode === 'backC'){
+    for(const z of [1,6,5]) if(isC(z)) return z;
+    for(let z=1; z<=6; z++) if(isC(z)) return z;
+  }
+  return 3;
+}
+// ¿este jugador aparece como líbero?
+function isLibero(sys, zr, z){
+  if(!rLib) return false;
+  if(sys === '6-6' || sys === '6-3') return false;
+  return BACK.includes(z) && zr[z].k[0] === 'M';
+}
+
+/* --- posiciones por defecto --- */
+// Salida del colocador en recepción, según la zona que ocupa.
+// Si es zaguero se coloca DETRÁS de la línea de receptores: en el momento
+// del saque tiene que estar más lejos de la red que su delantero.
+const SET_START = {
+  1:{x:735, y:1570}, 6:{x:520, y:1430}, 5:{x:300, y:1340},
+  2:{x:665, y:995},  3:{x:470, y:995},  4:{x:345, y:995}
+};
+function basePos(){
+  const p = {};
+  for(let z=1; z<=6; z++) p[z] = {x:Z[z].x, y:Z[z].y};
+  return p;
+}
+function recepPos(sys, rot){
+  const zr = zoneRoles(sys, rot), sz = setterZone(sys, zr), p = basePos();
+  p[sz] = Object.assign({}, SET_START[sz]);
+
+  // tres receptores en semicírculo
+  let rec = BACK.filter(z => z !== sz);
+  if(rec.length === 2){                       // el colocador era zaguero
+    const fr = FRONT.find(z => z !== sz && (zr[z].k[0]==='R' || zr[z].k[0]==='A' || zr[z].k[0]==='J'));
+    rec.push(fr !== undefined ? fr : 4);
+  }
+  rec.sort((a,b) => Z[a].x - Z[b].x);
+  const rx = [180, 450, 720], ry = [1450, 1540, 1450];
+  rec.forEach((z,i) => p[z] = {x:rx[i], y:ry[i]});
+
+  // el resto, a su sitio de ataque o a su zona
+  for(let z=1; z<=6; z++){
+    if(z === sz || rec.includes(z)) continue;
+    if(FRONT.includes(z)){
+      const k = zr[z].k[0];
+      if(k === 'M')      p[z] = {x:450, y:1000};
+      else if(z === 4)   p[z] = {x:170, y:1020};
+      else if(z === 2)   p[z] = {x:730, y:1020};
+      else               p[z] = {x:450, y:1000};
+    }
+  }
+  // el colocador es quien más se adapta; los receptores casi no se mueven
+  const w = {};
+  for(let z=1; z<=6; z++) w[z] = rec.includes(z) ? 0.12 : 0.6;
+  w[sz] = 1;
+  return legalize(p, w);
+}
+// Empuja las posiciones lo justo para que la formación sea legal.
+// w[z] = cuánto absorbe cada jugador la corrección (0 = no se mueve).
+function legalize(p, w){
+  const clampX = v => Math.max(-120, Math.min(CW+120, v));
+  const clampY = v => Math.max(NET+70, Math.min(CH+260, v));
+  const gap = 120;
+  const order = (a,b,ax) => {
+    const d = p[a][ax] + gap - p[b][ax];
+    if(d <= 0) return;
+    const wa = w ? w[a] : 1, wb = w ? w[b] : 1, t = wa + wb;
+    if(t <= 0){ p[a][ax] -= d/2; p[b][ax] += d/2; return; }
+    p[a][ax] -= d * wa / t;
+    p[b][ax] += d * wb / t;
+  };
+  for(let i=0; i<10; i++){
+    order(4,3,'x'); order(3,2,'x');
+    order(5,6,'x'); order(6,1,'x');
+    order(2,1,'y'); order(3,6,'y'); order(4,5,'y');
+    for(let z=1; z<=6; z++){ p[z].x = clampX(p[z].x); p[z].y = clampY(p[z].y); }
+  }
+  for(let z=1; z<=6; z++){ p[z].x = Math.round(p[z].x); p[z].y = Math.round(p[z].y); }
+  return p;
+}
+// texto de la zona desde la que se distribuye
+function targetZoneName(sys){
+  const x = SYS[sys].setPos.x;
+  return x > 560 ? 'zona 2' : (x < 340 ? 'zona 4' : 'zona 3');
+}
+/* --- fases de colocación-ataque y de defensa-bloqueo ---
+   Ojo con una regla: la falta de posición solo existe hasta que el sacador
+   golpea el balón. En cuanto la jugada arranca, cada uno puede estar donde
+   quiera, así que en estas dos fases no se valida nada.                    */
+
+let rGolpe = DB.get('vb_golpe', 'remate');   // remate fuerte o finta
+let rRival = DB.get('vb_rival', false);   // mostrar o no a los contrarios
+let rDefZona = 4;      // zona rival desde la que entra el ataque (4, 3, 2 o 6 = pipe)
+let rDef6 = 'atras';   // defensa con el 6 atrás o el 6 adelante
+
+const DEFZONAS = [
+  {v:4, t:'Atacan por su zona 4'},
+  {v:3, t:'Atacan por su zona 3'},
+  {v:2, t:'Atacan por su zona 2'},
+  {v:6, t:'Atacan por el centro (pipe)'}
+];
+
+// Quién puede rematar en esta rotación: los delanteros que no colocan, más los
+// zagueros que entran a atacar — el receptor por el centro (pipe) y el opuesto
+// por zona 1. El líbero nunca remata, así que nunca entra en la cuenta.
+function atacantesDe(sys, rot){
+  const zr = zoneRoles(sys, rot), sz = setterZone(sys, zr);
+  const front = FRONT.filter(z => z !== sz);
+  let pipe, zaga1;
+  if(front.length >= 2){
+    const zagueroCon = ini => BACK.find(z => z !== sz && zr[z].k[0] === ini && !isLibero(sys, zr, z));
+    pipe  = zagueroCon('R');
+    zaga1 = zagueroCon('O');
+  }
+  const extra = [pipe, zaga1].filter(z => z !== undefined);
+  return {sz, front, pipe, zaga1, todos: front.concat(extra)};
+}
+
+// Colocador ya en la red y los rematadores tomando carrera.
+function ataquePos(sys, rot){
+  const {sz, front, pipe, zaga1} = atacantesDe(sys, rot);
+  const tg = SYS[sys].setPos, p = basePos();
+  p[sz] = {x:tg.x, y:tg.y};
+  const sw = colocacionTrasSaque(sys, zoneRoles(sys, rot));
+  const BATIDA = {izq:{x:95, y:1255}, centro:{x:430, y:1165}, der:{x:815, y:1255}};
+  front.forEach(z => { p[z] = Object.assign({}, BATIDA[sw[z]]); });
+  BACK.forEach(z => { if(z !== sz) p[z] = {x:Z[z].x, y:1560}; });
+  if(pipe  !== undefined) p[pipe]  = {x:470, y:1395};   // pipe, por el centro
+  if(zaga1 !== undefined) p[zaga1] = {x:800, y:1425};   // opuesto entrando por zona 1
+  p.dir = {x:450, y:380};   // dónde cae nuestro remate, arrastrable
+  return p;
+}
+
+// En cuanto sale el saque los delanteros cambian el sitio: el central se va al
+// medio, el receptor a la izquierda y el opuesto (o el colocador) a la derecha.
+// Sin esto el bloqueo saldría con la gente cambiada en media tabla de rotaciones.
+function colocacionTrasSaque(sys, zr){
+  const m = {};
+  if(sys === '6-6' || sys === '6-3'){        // sin especialización no hay cambio
+    FRONT.forEach(z => m[z] = (z === 4 ? 'izq' : z === 3 ? 'centro' : 'der'));
+    return m;
+  }
+  const libres = ['izq', 'centro', 'der'];
+  const dar = (z, s) => { const i = libres.indexOf(s); if(i < 0) return false; libres.splice(i, 1); m[z] = s; return true; };
+  FRONT.forEach(z => { if(zr[z].k[0] === 'M') dar(z, 'centro'); });
+  FRONT.forEach(z => { if(!m[z] && zr[z].k[0] === 'R') dar(z, 'izq'); });
+  FRONT.forEach(z => { if(!m[z] && (zr[z].k[0] === 'O' || zr[z].k[0] === 'C')) dar(z, 'der'); });
+  FRONT.forEach(z => { if(!m[z]) dar(z, libres[0]); });
+  return m;
+}
+
+// El del lado del ataque cierra por fuera y el central cierra por dentro.
+function bloqueadores(zr, lado, sys){
+  const sw = colocacionTrasSaque(sys, zr);
+  const en = s => FRONT.find(z => sw[z] === s);
+  const central = en('centro');
+  const ala = lado === 'der' ? en('der') : (lado === 'izq' ? en('izq') : undefined);
+  const out = [];
+  if(ala !== undefined && ala !== central) out.push(ala);
+  if(central !== undefined) out.push(central);
+  if(!out.length) out.push(FRONT[0]);
+  return out;
+}
+
+function defensaPos(sys, rot, zona, seis){
+  const zr = zoneRoles(sys, rot), p = basePos();
+  p.atk = {x:ZR[zona].x, y:ZR[zona].y};
+  const bx = p.atk.x;
+  const lado = ladoDe(bx);
+  p.dir = {x: lado === 'izq' ? 750 : (lado === 'der' ? 150 : 450), y:1560};
+  const blq = plantaBloqueo(p, zr, sys);
+
+
+  // el delantero que no bloquea baja a cubrir la finta de su propio lado
+  const sw = colocacionTrasSaque(sys, zr);
+  const COBERTURA = {izq:{x:235, y:1215}, centro:{x:450, y:1255}, der:{x:665, y:1215}};
+  FRONT.forEach(z => {
+    if(blq.includes(z)) return;
+    p[z] = Object.assign({}, COBERTURA[sw[z]]);
+  });
+
+  // zagueros: línea, diagonal larga y centro
+  const sitios = [
+    {x: lado === 'izq' ? 145 : 755, y:1465},                      // línea, detrás del bloqueo
+    {x: lado === 'izq' ? 775 : 165, y:1635},                      // diagonal larga
+    {x: 450, y: seis === 'atras' ? 1745 : 1355}                   // el 6, atrás o adelante
+  ];
+  BACK.filter(z => !blq.includes(z)).forEach(z => {
+    let mejor = -1, dist = Infinity;
+    sitios.forEach((s, i) => {
+      if(s.tomado) return;
+      const d = Math.hypot(Z[z].x - s.x, Z[z].y - s.y);
+      if(d < dist){ dist = d; mejor = i; }
+    });
+    if(mejor >= 0){ p[z] = {x:sitios[mejor].x, y:sitios[mejor].y}; sitios[mejor].tomado = true; }
+  });
+  return p;
+}
+
+// Flechas del colocador a cada rematador disponible.
+function svgOpcionesAtaque(sys, rot, p){
+  const {sz, todos} = atacantesDe(sys, rot);
+  let s = '';
+  todos.forEach(z => {
+    const dx = p[z].x - p[sz].x, dy = p[z].y - p[sz].y, L = Math.hypot(dx, dy) || 1;
+    if(L < 120) return;
+    s += `<line x1="${p[sz].x}" y1="${p[sz].y}" x2="${Math.round(p[z].x - dx/L*74)}"
+            y2="${Math.round(p[z].y - dy/L*74)}" stroke="#ffd166" stroke-width="9"
+            stroke-dasharray="24 16" stroke-linecap="round" opacity=".9" marker-end="url(#ar-y)"/>`;
+  });
+  return s;
+}
+
+function faseDeJugada(){ return rFase === "ataque" || rFase === "defensa"; }
+function ladoDe(x){ return x > 560 ? 'der' : (x < 340 ? 'izq' : 'centro'); }
+
+// Planta el bloqueo delante de donde esté el rematador rival ahora mismo.
+function plantaBloqueo(p, zr, sys){
+  const lado = ladoDe(p.atk.x), blq = bloqueadores(zr, lado, sys), bx = p.atk.x;
+  const cl = v => Math.max(60, Math.min(840, v));
+  if(blq.length === 2){
+    p[blq[0]] = {x:cl(lado === 'izq' ? bx - 74 : bx + 74), y:985};
+    p[blq[1]] = {x:cl(lado === 'izq' ? bx + 74 : bx - 74), y:985};
+  } else if(blq.length){
+    p[blq[0]] = {x:cl(bx), y:985};
+  }
+  return blq;
+}
+
+// Cono que el bloqueo le tapa al rematador, proyectado hasta nuestro fondo.
+function sombraBloqueo(p, blq){
+  if(!p.atk || !blq || !blq.length) return null;
+  const A = p.atk, xs = blq.map(z => p[z].x), by = p[blq[0]].y;
+  if(by - A.y < 40) return null;
+  const t = (1790 - A.y) / (by - A.y);
+  const proy = bx => Math.round(A.x + (bx - A.x) * t);
+  return [[A.x, A.y], [proy(Math.min(...xs) - 62), 1790], [proy(Math.max(...xs) + 62), 1790]];
+}
+function dentroDelTriangulo(P, tri){
+  if(!tri || !P) return false;
+  const sg = (a, b, c) => (a[0]-c[0])*(b[1]-c[1]) - (b[0]-c[0])*(a[1]-c[1]);
+  const q = [P.x, P.y];
+  const d1 = sg(q, tri[0], tri[1]), d2 = sg(q, tri[1], tri[2]), d3 = sg(q, tri[2], tri[0]);
+  return !(((d1 < 0) || (d2 < 0) || (d3 < 0)) && ((d1 > 0) || (d2 > 0) || (d3 > 0)));
+}
+// paralelo si el balón cae del mismo lado desde el que se remata, diagonal si cruza
+function tipoTrayectoria(A, D){
+  if(!A || !D) return '';
+  if(Math.abs(D.x - 450) < 130) return 'por el centro';
+  return (Math.sign(A.x - 450) === Math.sign(D.x - 450)) ? 'paralelo' : 'en diagonal';
+}
+function zonaMasCercana(P){
+  let mejor = 4, d = Infinity;
+  [4, 3, 2, 6].forEach(z => {
+    const dd = Math.hypot(ZR[z].x - P.x, ZR[z].y - P.y);
+    if(dd < d){ d = dd; mejor = z; }
+  });
+  return mejor;
+}
+function nombreOrigen(z){ return z === 6 ? 'el centro (pipe)' : 'su zona ' + z; }
+
+// Dos golpes distintos: el remate va tenso y directo; la finta describe un arco
+// alto y blando por encima de las manos, con el mismo trazo punteado que en la pizarra.
+function flechaRemate(A, B){
+  const finta = (rGolpe === 'finta');
+  const mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2;
+  const dx = B.x - A.x, dy = B.y - A.y, L = Math.hypot(dx, dy) || 1;
+  const arco = finta ? 130 : 55;
+  const nx = -dy / L * arco, ny = dx / L * arco;
+  const punta = finta ? 40 : 44;
+  return `<path d="M${A.x} ${A.y} Q${Math.round(mx + nx)} ${Math.round(my + ny)}
+            ${Math.round(B.x - dx / L * punta)} ${Math.round(B.y - dy / L * punta)}" fill="none"
+            stroke="${finta ? '#8ce99a' : '#ff4d3d'}" stroke-width="${finta ? 10 : 14}"
+            ${finta ? 'stroke-dasharray="4 24"' : ''} stroke-linecap="round"
+            marker-end="url(#${finta ? 'ar-v' : 'ar-r'})"/>`;
+}
+// punto agarrable: dónde cae el balón
+function manejadorDir(P){
+  const c = (rGolpe === 'finta') ? '#8ce99a' : '#ff4d3d';
+  return `<g data-pid="dir" transform="${ptf(P.x, P.y)}" style="cursor:grab">
+            <circle r="36" fill="${c}" fill-opacity=".2" stroke="${c}" stroke-width="7"/>
+            <circle r="10" fill="${c}"/>
+            <text y="74" text-anchor="middle" font-size="27" font-weight="700" fill="#ffffffe0"
+                  stroke="#00000060" stroke-width="6" paint-order="stroke">cae aquí</text>
+          </g>`;
+}
+
+// El rematador rival: se arrastra libremente por su campo.
+function svgBloqueo(p, blq){
+  let s = '';
+  const tri = sombraBloqueo(p, blq);
+  if(tri) s += `<polygon points="${tri.map(q => q[0] + ',' + q[1]).join(' ')}" fill="#00000045" clip-path="url(#clip-us)"/>`;
+  if(p.dir) s += flechaRemate(p.atk, p.dir);
+  s += `<g data-pid="atk" transform="${ptf(p.atk.x, p.atk.y)}" style="cursor:grab">
+          <circle r="54" fill="#7a1420" stroke="#ff9aa2" stroke-width="8"/>
+          <circle r="72" fill="none" stroke="#ff9aa2" stroke-width="5" stroke-dasharray="10 13" opacity=".7"/>
+          <text y="16" text-anchor="middle" font-size="44" font-weight="800" fill="#ffffff">R</text>
+          <text y="112" text-anchor="middle" font-size="27" font-weight="700" fill="#ffffffe0"
+                stroke="#00000060" stroke-width="6" paint-order="stroke">rematador</text>
+        </g>`;
+  if(p.dir) s += manejadorDir(p.dir);
+  return s;
+}
+
+// Nuestro remate: sale del jugador elegido y cae donde marques.
+function svgRemateNuestro(p, zRemat){
+  if(zRemat === undefined || !p.dir || !p[zRemat]) return '';
+  return flechaRemate(p[zRemat], p.dir) + manejadorDir(p.dir);
+}
+
+function keyR(){
+  return rSys + '|' + rRot + '|' + rFase +
+         (rFase === 'defensa' ? '|' + rDefZona + '|' + rDef6 : '');
+}
+function curPos(){
+  const k = keyR();
+  if(!rPos[k]){
+    rPos[k] = rFase === 'recep'   ? recepPos(rSys, rRot)
+            : rFase === 'ataque'  ? ataquePos(rSys, rRot)
+            : rFase === 'defensa' ? defensaPos(rSys, rRot, rDefZona, rDef6)
+            :                       basePos();
+  }
+  return rPos[k];
+}
+
+/* --- faltas de posición --- */
+function faults(p, zr){
+  // Iniciada la jugada ya no hay falta de posición: nada que validar aquí.
+  if(rFase !== 'saque' && rFase !== 'recep') return {out:[], bad:new Set(), librePosicion:true};
+  const out = [], bad = new Set();
+  const nm = z => `zona ${z} (${ROLNAME[zr[z].k]})`;
+  // al sacar, el sacador (zona 1) queda exento
+  const skip1 = (rFase === 'saque');
+  const cmp = (a, b, ax, rel) => {
+    if(skip1 && (a===1 || b===1)) return;
+    if(p[a][ax] >= p[b][ax]){
+      out.push(`${nm(a)} debe estar ${rel} de ${nm(b)}.`);
+      bad.add(a); bad.add(b);
+    }
+  };
+  cmp(4,3,'x','a la izquierda'); cmp(3,2,'x','a la izquierda');
+  cmp(5,6,'x','a la izquierda'); cmp(6,1,'x','a la izquierda');
+  cmp(2,1,'y','más cerca de la red'); cmp(3,6,'y','más cerca de la red'); cmp(4,5,'y','más cerca de la red');
+  return {out, bad};
+}
+
+// quién remata tiene que estar decidido antes de dibujar, no después
+function resuelveRemat(){
+  if(rFase !== 'ataque') return;
+  const {todos} = atacantesDe(rSys, rRot);
+  if(!todos.includes(rRemat)) rRemat = todos[0];
+}
+function drawRot(){
+  resuelveRemat();
+  const jug = faseDeJugada();   // ataque y defensa necesitan las dos mitades
+  svgR.setAttribute("viewBox", jug ? (LAND ? VB.jugadaH : VB.jugadaV) : (LAND ? VB.halfH : VB.halfV));
+  const zr = zoneRoles(rSys, rRot), p = curPos(), sz = setterZone(rSys, zr);
+  const f = faults(p, zr);
+  let s = defs() + gopen() + courtSVG(!jug);
+  // marcas de zona base tenues
+  for(let z=1; z<=6; z++)
+    s += `<circle cx="${Z[z].x}" cy="${Z[z].y}" r="8" fill="#00000030"/>`;
+  // ataque: de dónde sale cada opción de remate
+  if(rFase === 'ataque'){ s += svgOpcionesAtaque(rSys, rRot, p); s += svgRemateNuestro(p, rRemat); }
+  // defensa: el rematador rival y la sombra del bloqueo
+  if(rFase === 'defensa') s += svgBloqueo(p, bloqueadores(zr, ladoDe(p.atk.x), rSys));
+  // salida del colocador hacia su zona de distribución
+  if(rFase === 'recep'){
+    const tg = SYS[rSys].setPos, a = p[sz];
+    if(Math.hypot(tg.x-a.x, tg.y-a.y) > 150){
+      s += `<line x1="${a.x}" y1="${a.y}" x2="${tg.x}" y2="${tg.y}" stroke="#ffffff"
+              stroke-width="11" stroke-dasharray="26 18" stroke-linecap="round"
+              opacity=".8" marker-end="url(#ar-w)"/>`;
+      s += `<circle cx="${tg.x}" cy="${tg.y}" r="26" fill="none" stroke="#ffffff" stroke-width="7" opacity=".8"/>`;
+    }
+  }
+  for(let z=1; z<=6; z++){
+    const rol = zr[z], lib = isLibero(rSys, zr, z);
+    // con plantilla cargada mandan el dorsal y el nombre; si no, el puesto
+    const j = lib ? liberoDe() : jugadorDe(rSys, rol.k);
+    const nom = nombreCorto(j);
+    let sub = (z === sz) ? 'coloca' : (lib ? 'Líbero' : '');
+    if(nom) sub = (z === sz) ? nom + ' · coloca' : nom;
+    s += playerSVG({
+      id:'z'+z, x:p[z].x, y:p[z].y,
+      txt: (j && j.dorsal) ? j.dorsal : (lib ? 'L' : rol.t),
+      sub,
+      fill: lib ? '#5f3dc4' : rol.c + 'ee',
+      ring: z === sz ? '#ffffff' : '#00000055',
+      bad: f.bad.has(z)
+    });
+  }
+  // jugadores del rival: seis fichas que se encienden y se apagan
+  if(rRival){
+    if(!p.riv) p.riv = rivalPorDefecto();
+    for(let z = 1; z <= 6; z++)
+      s += playerSVG({id:'v' + z, x:p.riv[z].x, y:p.riv[z].y, txt:z, team:'them'});
+  }
+  s += '</g>';
+  svgR.innerHTML = s;
+  $('#r-num').textContent = 'R' + (rRot + 1);
+  sincronizaFases();
+
+  // panel lateral
+  const S = SYS[rSys];
+  let h = `<h3>${S.nom} — rotación ${rRot+1}</h3><div class="chips">`;
+  for(const z of [4,3,2,5,6,1]){
+    const rol = zr[z], lib = isLibero(rSys, zr, z);
+    h += `<span class="chip"><span class="dot" style="background:${lib?'#5f3dc4':rol.c}"></span>
+      Z${z} · ${lib ? 'Líbero' : ROLNAME[rol.k]}${chipNom(rSys, zr, z, lib)}${z===sz?' ⟵ coloca':''}</span>`;
+  }
+  h += `</div>`;
+  const frontAt = FRONT.filter(z => z !== sz).length;
+  const tzn = targetZoneName(rSys);
+  const via = BACK.includes(sz)
+    ? `penetra desde zona ${sz} hasta ${tzn}`
+    : (`zona ${sz}` === tzn ? `distribuye desde ${tzn}` : `se desplaza de zona ${sz} a ${tzn}`);
+  h += `<p class="note"><b>${frontAt} atacantes</b> en la red · <b>${ROLNAME[zr[sz].k]}</b> ${via}.</p>`;
+  h += `<p class="note">${S.txt}</p>`;
+  if(rFase === 'ataque'){
+    const {front, pipe, zaga1} = atacantesDe(rSys, rRot);
+    const sw = colocacionTrasSaque(rSys, zr);
+    const LADO = {izq:'por la izquierda', centro:'por el centro', der:'por la derecha'};
+    const quien = z => {
+      const j = jugadorDe(rSys, zr[z].k), t = j ? [j.dorsal, nombreCorto(j)].filter(Boolean).join(' ') : '';
+      return t || ROLNAME[zr[z].k];
+    };
+    const n = front.length + (pipe !== undefined ? 1 : 0) + (zaga1 !== undefined ? 1 : 0);
+    h += `<p class="note"><b>${n} ${n === 1 ? 'opción' : 'opciones'} de remate</b>: `
+       + front.map(z => `${quien(z)} ${LADO[sw[z]]}`).join(', ')
+       + (pipe  !== undefined ? `, ${quien(pipe)} por el pipe` : '')
+       + (zaga1 !== undefined ? `, y ${quien(zaga1)} de zaguero por zona 1` : '') + `.</p>`;
+    if(rRemat !== undefined && p.dir)
+      h += `<p class="note">Remata <b>${quien(rRemat)}</b> y el balón cae <b>${tipoTrayectoria(p[rRemat], p.dir)}</b>, ${rGolpe === 'finta' ? 'de finta' : 'de remate'}. Arrastra el punto de caída para moverlo, y el botón de golpe cambia entre remate y finta.</p>`;
+  }
+  if(rFase === 'defensa'){
+    const lado = ladoDe(p.atk.x);
+    const blq = bloqueadores(zr, lado, rSys), cubre = FRONT.filter(z => !blq.includes(z));
+    const tri = sombraBloqueo(p, blq), tapado = dentroDelTriangulo(p.dir, tri);
+    h += `<p class="note">Atacan desde <b>${nombreOrigen(zonaMasCercana(p.atk))}</b>`
+       + ` y el balón entra <b>${tipoTrayectoria(p.atk, p.dir)}</b>.</p>`;
+    h += `<p class="note"><b>Bloquean</b> ${blq.map(z => 'Z' + z).join(' y ')}`
+       + (cubre.length ? ` · <b>cubre la finta</b> ${cubre.map(z => 'Z' + z).join(' y ')}` : '')
+       + ` · defensa con el <b>6 ${rDef6 === 'atras' ? 'atrás' : 'adelante'}</b>.</p>`;
+    h += (rGolpe === 'finta')
+      ? `<p class="note" style="color:var(--ok)">La finta pasa por encima del bloqueo. Ese balón no lo levanta el bloqueo: lo tiene que cubrir el delantero que no bloquea.</p>`
+      : (tapado
+        ? `<p class="note" style="color:var(--ok)">Esa trayectoria pasa por el bloqueo. Para meterla ahí tendrían que rematar por encima de las manos o buscar el toque.</p>`
+        : `<p class="note" style="color:var(--acc)">Esa trayectoria pasa por fuera del bloqueo: ese balón lo tiene que levantar el campo.</p>`);
+    h += `<p class="note">Arrastra al <b>rematador</b> por la red del rival para cambiar por dónde entran, y el <b>punto de caída</b> para cambiar hacia dónde va. El bloqueo se replanta solo delante de él.</p>`;
+  }
+  if(f.out.length){
+    h += `<ul class="faults">` + f.out.map(t => `<li>${t}</li>`).join('') + `</ul>`;
+  } else if(f.librePosicion){
+    h += `<p class="note">La falta de posición solo cuenta hasta que el sacador golpea el balón. Empezada la jugada cada uno se coloca donde haga falta, así que en esta fase no se valida nada.</p>`;
+  } else {
+    h += `<p class="legal">✔ Formación legal${rFase==='saque'?' (el sacador queda exento)':''}.</p>`;
+  }
+  h += `<p class="note">Arrastra a los jugadores para ajustar la formación. Los cambios se guardan por rotación y fase.</p>`;
+  $('#rot-side').innerHTML = h;
+}
+
+// controles propios de cada fase: solo se ven donde hacen algo
+let rRemat;
+const selDefZ = $('#r-defzona'), selRemat = $('#r-remat');
+DEFZONAS.forEach(d => {
+  const o = document.createElement('option');
+  o.value = d.v; o.textContent = d.t;
+  selDefZ.appendChild(o);
+});
+selDefZ.value = rDefZona;
+function sincronizaFases(){
+  $$('.dfonly').forEach(e => e.style.display = (rFase === 'defensa') ? '' : 'none');
+  $$('.atonly').forEach(e => e.style.display = (rFase === 'ataque')  ? '' : 'none');
+  $$('.jugonly').forEach(e => e.style.display = faseDeJugada() ? '' : 'none');
+  $('#r-golpe').textContent = (rGolpe === 'finta') ? '◠ Finta' : '⚡ Remate';
+  $('#r-golpe').classList.toggle('on', rGolpe === 'finta');
+  $('#r-def6').textContent = rDef6 === 'atras' ? '6 atrás' : '6 adelante';
+  if(rFase !== 'ataque') return;
+  // la lista de rematadores cambia con la rotación
+  const {todos} = atacantesDe(rSys, rRot), zr = zoneRoles(rSys, rRot);
+  if(!todos.includes(rRemat)) rRemat = todos[0];
+  selRemat.innerHTML = todos.map(z => {
+    const j = jugadorDe(rSys, zr[z].k), t = j ? [j.dorsal, nombreCorto(j)].filter(Boolean).join(' ') : '';
+    return `<option value="${z}"${z === rRemat ? ' selected' : ''}>Remata ${esc(t || ROLNAME[zr[z].k])}</option>`;
+  }).join('');
+}
+selDefZ.onchange   = () => { rDefZona = +selDefZ.value; drawRot(); };
+selRemat.onchange  = () => { rRemat = +selRemat.value; drawRot(); };
+$('#r-def6').onclick = () => { rDef6 = (rDef6 === 'atras') ? 'adelante' : 'atras'; drawRot(); };
+$('#r-golpe').onclick = () => {
+  rGolpe = (rGolpe === 'finta') ? 'remate' : 'finta';
+  DB.set('vb_golpe', rGolpe);
+  drawRot();
+};
+selSys.onchange = () => { rSys = selSys.value; drawRot(); };
+$('#r-prev').onclick = () => { rRot = (rRot + 5) % 6; drawRot(); };
+$('#r-next').onclick = () => { rRot = (rRot + 1) % 6; drawRot(); };
+$('#r-num').onclick  = () => { rRot = 0; drawRot(); };
+$$('#rot-bar button[data-fase]').forEach(b => b.onclick = () => {
+  rFase = b.dataset.fase;
+  $$('#rot-bar button[data-fase]').forEach(x => x.classList.toggle('on', x===b));
+  drawRot();
+});
+$('#r-lib').onclick = e => { rLib = !rLib; e.currentTarget.classList.toggle('on', rLib); drawRot(); };
+$('#r-rival').onclick = e => {
+  rRival = !rRival;
+  e.currentTarget.classList.toggle('on', rRival);
+  DB.set('vb_rival', rRival);
+  drawRot();
+};
+$('#r-reset').onclick = () => { delete rPos[keyR()]; DB.set('vb_rot', rPos); drawRot(); };
+$('#r-png').onclick = () => exportPNG(svgR, `${rSys}-R${rRot+1}-${rFase}`);
+
+// El rematador y el punto de caída se arrastran igual que un jugador, pero
+// cada uno solo dentro del campo donde tiene sentido, y sin salirse de lo que
+// se ve: el recuadro de estas fases empieza en y=140.
+function puntoDe(p, pid){
+  if(pid === 'atk') return p.atk;
+  if(pid === 'dir') return p.dir;
+  if(pid[0] === 'v') return p.riv && p.riv[+pid.slice(1)];
+  return p[+pid.slice(1)];
+}
+// Los límites llegan hasta la línea de fondo del rival y un poco más allá,
+// para poder marcar también un balón que se va fuera. El recuadro de estas
+// fases cubre la pista entera, de y=-170 a y=2130.
+function limitaPunto(pid, x, y){
+  const ficha = v => Math.max(-50, Math.min(CW + 50, v));
+  const punto = v => Math.max(-80, Math.min(CW + 80, v));
+  const enfrente = v => Math.max(-40, Math.min(NET - 40, v));
+  if(pid === 'atk' || pid[0] === 'v') return {x:ficha(x), y:enfrente(y)};
+  if(pid === 'dir') return (rFase === 'ataque')
+    ? {x:punto(x), y:enfrente(y)}
+    : {x:punto(x), y:Math.max(NET + 40, Math.min(CH + 240, y))};
+  return {x, y};
+}
+function ponPunto(p, pid, q){
+  if(pid === 'atk')            p.atk = q;
+  else if(pid === 'dir')       p.dir = q;
+  else if(pid[0] === 'v')      p.riv[+pid.slice(1)] = q;
+  else                         p[+pid.slice(1)] = q;
+}
+function rivalPorDefecto(){
+  const m = {};
+  for(let z = 1; z <= 6; z++) m[z] = {x:ZR[z].x, y:ZR[z].y};
+  return m;
+}
+let dragR = null;
+svgR.addEventListener('pointerdown', ev => {
+  const g = ev.target.closest('[data-pid]');
+  if(!g) return;
+  const pid = g.dataset.pid, p = curPos(), o = puntoDe(p, pid);
+  if(!o) return;
+  const c = toCourt(svgR, ev);
+  dragR = {pid, g, dx:c[0]-o.x, dy:c[1]-o.y, cx:ev.clientX, cy:ev.clientY};
+  try{ svgR.setPointerCapture(ev.pointerId); }catch(e){}
+  ev.preventDefault();
+});
+svgR.addEventListener('pointermove', ev => {
+  if(!dragR) return;
+  const c = toCourt(svgR, ev), p = curPos();
+  const q = limitaPunto(dragR.pid, c[0]-dragR.dx, c[1]-dragR.dy);
+  ponPunto(p, dragR.pid, q);
+  dragR.g.setAttribute('transform', ptf(q.x, q.y));
+  ev.preventDefault();
+});
+// Un toque seco sobre un jugador (sin arrastrarlo) abre el cambio.
+function endRot(ev){
+  if(!dragR) return;
+  const pid = dragR.pid;
+  const quieto = ev && Math.hypot(ev.clientX - dragR.cx, ev.clientY - dragR.cy) < 7;
+  if(pid === 'atk' && rFase === 'defensa')
+    plantaBloqueo(curPos(), zoneRoles(rSys, rRot), rSys);
+  dragR = null;
+  DB.set('vb_rot', rPos);
+  drawRot();
+  if(quieto && pid[0] === 'z' && equipo.length)
+    abreCambio(zoneRoles(rSys, rRot)[+pid.slice(1)].k, rSys);
+}
+svgR.addEventListener('pointerup', endRot);
+svgR.addEventListener('pointercancel', endRot);
+
+/* ==========================================================
+   ============== 3 · PLANIFICADOR DE SESIÓN ================
+   ========================================================== */
+const PRESETS = [
+  ['Calentamiento', 15, 'Activación general y movilidad'],
+  ['Toque de dedos / antebrazos', 15, 'Técnica individual de contacto'],
+  ['Saque', 12, 'Precisión y zonas de saque'],
+  ['Recepción', 20, 'Colocación de pies y primer contacto'],
+  ['Colocación', 15, 'Salida del colocador y trayectorias'],
+  ['Ataque / remate', 20, 'Carrera, batida y golpeo'],
+  ['Bloqueo', 15, 'Desplazamiento lateral y timing'],
+  ['Defensa en campo', 15, 'Posición base y caídas'],
+  ['Táctica · rotaciones', 20, 'Colocación en pista y penetración'],
+  ['Situación de juego reducida', 20, 'Ej. 3x3 o 4x4 con condición'],
+  ['Juego 6x6', 25, 'Aplicación en partido'],
+  ['Vuelta a la calma', 10, 'Estiramientos y feedback'],
+  ['Bloque libre', 15, '']
+];
+const selAdd = $('#s-add');
+PRESETS.forEach((p,i) => {
+  const o = document.createElement('option');
+  o.value = i; o.textContent = `${p[0]} (${p[1]}′)`;
+  selAdd.appendChild(o);
+});
+
+let ses = {t:'', d:'', b:[]};
+function renderSes(){
+  $('#s-title').value = ses.t;
+  $('#s-date').value  = ses.d;
+  const box = $('#s-blocks');
+  if(!ses.b.length){
+    box.innerHTML = `<div class="empty">Sin bloques todavía.<br>Añade uno desde «+ Añadir bloque…».</div>`;
+  } else {
+    box.innerHTML = ses.b.map((b,i) => `
+      <div class="blk" data-i="${i}">
+        <div class="top">
+          <button class="mini" data-act="up">↑</button>
+          <button class="mini" data-act="dn">↓</button>
+          <input class="nm" type="text" data-f="n" value="${esc(b.n)}" placeholder="Nombre del bloque">
+          <input class="mn" type="text" inputmode="numeric" data-f="m" value="${b.m}">
+          <button class="mini" data-act="rm">✕</button>
+        </div>
+        <input type="text" data-f="o" value="${esc(b.o)}" placeholder="Objetivo">
+        <textarea data-f="d" placeholder="Descripción, organización, material…">${esc(b.d)}</textarea>
+      </div>`).join('');
+  }
+  $('#s-total').textContent = ses.b.reduce((a,b) => a + (+b.m || 0), 0) + ' min';
+}
+function esc(s){ return String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+selAdd.onchange = () => {
+  const i = selAdd.value; selAdd.value = '';
+  if(i === '') return;
+  const p = PRESETS[+i];
+  ses.b.push({n:p[0], m:p[1], o:p[2], d:''});
+  renderSes();
+};
+$('#s-blocks').addEventListener('click', ev => {
+  const btn = ev.target.closest('button[data-act]'); if(!btn) return;
+  const i = +btn.closest('.blk').dataset.i, a = btn.dataset.act;
+  if(a === 'rm') ses.b.splice(i,1);
+  if(a === 'up' && i > 0)               ses.b.splice(i-1, 0, ses.b.splice(i,1)[0]);
+  if(a === 'dn' && i < ses.b.length-1)  ses.b.splice(i+1, 0, ses.b.splice(i,1)[0]);
+  renderSes();
+});
+$('#s-blocks').addEventListener('input', ev => {
+  const el = ev.target, f = el.dataset.f; if(!f) return;
+  const i = +el.closest('.blk').dataset.i;
+  ses.b[i][f] = (f === 'm') ? (el.value.replace(/\D/g,'') || 0) : el.value;
+  if(f === 'm') $('#s-total').textContent = ses.b.reduce((a,b) => a + (+b.m || 0), 0) + ' min';
+});
+$('#s-title').oninput = e => ses.t = e.target.value;
+$('#s-date').oninput  = e => ses.d = e.target.value;
+$('#s-new').onclick   = () => { if(confirm('¿Empezar una sesión nueva?')){ ses = {t:'', d:'', b:[]}; renderSes(); } };
+$('#s-print').onclick = () => window.print();
+$('#s-save').onclick = () => {
+  const n = ses.t || prompt('Nombre de la sesión:');
+  if(!n) return;
+  ses.t = n;
+  const all = DB.get('vb_sesiones', {});
+  all[n] = JSON.parse(JSON.stringify(ses));
+  DB.set('vb_sesiones', all);
+  renderSes();
+  alert('Guardada: ' + n);
+};
+$('#s-open').onclick = () => {
+  const all = DB.get('vb_sesiones', {});
+  openModal('Sesiones guardadas', Object.keys(all), n => {
+    ses = JSON.parse(JSON.stringify(all[n])); renderSes(); closeModal();
+  }, n => {
+    const a = DB.get('vb_sesiones', {}); delete a[n]; DB.set('vb_sesiones', a);
+  });
+};
+
+/* ================= MODAL ================= */
+function openModal(title, names, onPick, onDel){
+  $('#m-title').textContent = title;
+  const list = $('#m-list');
+  if(!names.length){
+    list.innerHTML = `<div class="empty">Todavía no hay nada guardado.</div>`;
+  } else {
+    list.innerHTML = names.map(n => `<div class="row"><span>${esc(n)}</span>
+      <button data-n="${esc(n)}" data-a="load">Abrir</button>
+      <button data-n="${esc(n)}" data-a="del">Borrar</button></div>`).join('');
+    list.onclick = ev => {
+      const b = ev.target.closest('button'); if(!b) return;
+      if(b.dataset.a === 'load') onPick(b.dataset.n);
+      else if(confirm('¿Borrar «' + b.dataset.n + '»?')){ onDel(b.dataset.n); b.closest('.row').remove(); }
+    };
+  }
+  $('#modal').classList.add('on');
+}
+function closeModal(){ $('#modal').classList.remove('on'); }
+$('#m-close').onclick = closeModal;
+$('#modal').onclick = e => { if(e.target.id === 'modal') closeModal(); };
+
+/* ==========================================================
+   ================= 4 · PLANTILLA ==========================
+   ==========================================================
+   Un jugador es {id, dorsal, nombre, pos}. La alineación ata
+   cada puesto de un sistema a un jugador: alin[sistema][rol] = id.  */
+
+const POS = {C:'Colocador', R:'Receptor', M:'Central', O:'Opuesto', L:'Líbero'};
+// un color por posición, el mismo que usan las rotaciones
+const COLPOS = {C:'#f6c445', R:'#4ea8de', M:'#6ecb63', O:'#e56399', L:'#5f3dc4'};
+let equipo = DB.get('vb_equipo', []);
+let alin   = DB.get('vb_alin', {});
+
+function guardaEquipo(){ DB.set('vb_equipo', equipo); DB.set('vb_alin', alin); }
+function jugadorPorId(id){ return equipo.find(j => j.id === id) || null; }
+// jugador asignado a un puesto del sistema, o null
+function jugadorDe(sys, rolK){
+  const m = alin[sys]; if(!m) return null;
+  return jugadorPorId(m[rolK]);
+}
+// el líbero es el primero de la plantilla con esa posición
+function liberoDe(){ return equipo.find(j => j.pos === 'L') || null; }
+function nombreCorto(j){
+  if(!j || !j.nombre) return '';
+  const n = j.nombre.trim();
+  return n.length > 12 ? n.slice(0, 11) + '…' : n;
+}
+
+// texto añadido a la etiqueta del panel: dorsal y nombre si están asignados
+function chipNom(sys, zr, z, lib){
+  const j = lib ? liberoDe() : jugadorDe(sys, zr[z].k);
+  if(!j) return '';
+  const t = [j.dorsal, nombreCorto(j)].filter(Boolean).join(' ');
+  return t ? ' · ' + t : '';
+}
+const selESys = $('#e-sys');
+for(const k in SYS){
+  const o = document.createElement('option');
+  o.value = k; o.textContent = SYS[k].corto;
+  selESys.appendChild(o);
+}
+let eSys = '5-1';
+selESys.value = eSys;
+
+
+function renderEquipo(){
+  const lista = $('#e-list');
+  if(!equipo.length){
+    lista.innerHTML = `<div class="empty">Todavía no hay jugadores.<br>Añade el primero con «✚ Jugador».</div>`;
+  } else {
+    lista.innerHTML = equipo.map((j, i) => `
+      <div class="jug" data-i="${i}">
+        <input class="dor" type="text" inputmode="numeric" data-f="dorsal" value="${esc(j.dorsal)}" aria-label="Dorsal">
+        <input class="nom" type="text" data-f="nombre" value="${esc(j.nombre)}" placeholder="Nombre">
+        <select data-f="pos" aria-label="Posición">
+          ${Object.keys(POS).map(k => `<option value="${k}"${j.pos === k ? ' selected' : ''}>${POS[k]}</option>`).join('')}
+        </select>
+        <button class="mini" data-act="up" aria-label="Subir">↑</button>
+        <button class="mini" data-act="dn" aria-label="Bajar">↓</button>
+        <button class="mini" data-act="rm" aria-label="Quitar">✕</button>
+      </div>`).join('');
+  }
+
+  renderAlineacion();
+}
+
+$('#e-add').onclick = () => {
+  equipo.push({id: 'j' + Date.now() + Math.random().toString(36).slice(2, 6),
+               dorsal: '', nombre: '', pos: 'R'});
+  guardaEquipo(); renderEquipo();
+};
+$('#e-vaciar').onclick = () => {
+  if(!confirm('¿Vaciar la plantilla entera?\n\nSe borran los jugadores y todas las alineaciones.')) return;
+  equipo = []; alin = {};
+  guardaEquipo(); renderEquipo(); drawRot(); drawPiz();
+};
+$('#e-list').addEventListener('input', ev => {
+  const el = ev.target, f = el.dataset.f; if(!f) return;
+  const i = +el.closest('.jug').dataset.i;
+  equipo[i][f] = (f === 'dorsal') ? el.value.replace(/\D/g, '').slice(0, 2) : el.value;
+  guardaEquipo(); drawRot(); drawPiz();
+});
+$('#e-list').addEventListener('change', ev => {
+  if(ev.target.dataset.f === 'pos'){ guardaEquipo(); renderEquipo(); drawRot(); }
+});
+$('#e-list').addEventListener('click', ev => {
+  const b = ev.target.closest('button[data-act]'); if(!b) return;
+  const i = +b.closest('.jug').dataset.i, a = b.dataset.act;
+  if(a === 'rm'){
+    const id = equipo[i].id;
+    equipo.splice(i, 1);
+    for(const s in alin) for(const r in alin[s]) if(alin[s][r] === id) delete alin[s][r];
+  }
+  if(a === 'up' && i > 0)              equipo.splice(i - 1, 0, equipo.splice(i, 1)[0]);
+  if(a === 'dn' && i < equipo.length-1) equipo.splice(i + 1, 0, equipo.splice(i, 1)[0]);
+  guardaEquipo(); renderEquipo(); drawRot(); drawPiz();
+});
+// Alineación y banquillo con fichas. Tocas a un jugador y sale la lista de
+// quién puede sustituirle, con los de su misma posición arriba del todo.
+function fichaHTML(rol, id, color){
+  const j = jugadorPorId(id);
+  const et = j ? [j.dorsal, j.nombre || 'sin nombre'].filter(Boolean).join(' · ') : '— vacío —';
+  return `<button class="ficha${j ? '' : ' vacio'}" data-rol="${rol || ''}" data-id="${id || ''}">`
+       + (color ? `<span class="dot" style="background:${color}"></span>` : '')
+       + `${esc(et)}</button>`;
+}
+
+// deja el puesto rol con el jugador id, quitándolo de donde estuviera
+function colocaEn(m, rol, id){
+  for(const k in m) if(m[k] === id) delete m[k];
+  if(id) m[rol] = id; else delete m[rol];
+}
+function aplicaCambio(A, B, sys){
+  const s = sys || eSys;
+  const m = alin[s] || (alin[s] = {});
+  if(A.rol && B.rol){                     // dos titulares: se permutan
+    const ta = m[A.rol], tb = m[B.rol];
+    if(tb) m[A.rol] = tb; else delete m[A.rol];
+    if(ta) m[B.rol] = ta; else delete m[B.rol];
+  } else if(A.rol || B.rol){              // entra o sale alguien del banquillo
+    colocaEn(m, A.rol || B.rol, A.rol ? B.id : A.id);
+  }
+  guardaEquipo();
+}
+function trasCambiar(){
+  closeModal();
+  renderAlineacion();
+  drawRot(); drawPiz();
+}
+
+function renderAlineacion(){
+  const L = SYS[eSys].L, m = alin[eSys] || {};
+  $('#e-alin-nota').innerHTML = equipo.length
+    ? `Quien ocupa el primer puesto es quien saca en la rotación 1, y los puestos separados por tres se colocan enfrente en pista. <b>Toca a un jugador para cambiarlo por otro.</b>`
+    : `Añade jugadores arriba para poder repartir los puestos.`;
+  $('#e-alin').innerHTML = L.map((rol, i) => `
+    <div class="alr">
+      <span class="rol"><span class="dot" style="background:${rol.c}"></span>${i + 1}. ${ROLNAME[rol.k]}</span>
+      ${fichaHTML(rol.k, m[rol.k], null)}
+    </div>`).join('');
+
+  const dentro = new Set(Object.values(m));
+  const banca = equipo.filter(j => !dentro.has(j.id));
+  $('#e-banq-nota').textContent = !equipo.length ? ''
+    : (banca.length ? 'Tócalos para hacerlos entrar por el puesto que elijas.' : 'Nadie en el banquillo.');
+  $('#e-banq').innerHTML = banca.map(j => fichaHTML(null, j.id, COLPOS[j.pos])).join('');
+}
+function etiqueta(j){ return esc([j.dorsal, j.nombre || 'sin nombre'].filter(Boolean).join(' · ')); }
+
+// Quién puede entrar por el que ocupa este puesto.
+function abreCambio(rol, sys){
+  const s = sys || eSys;
+  if(!equipo.length) return;
+  const m = alin[s] || (alin[s] = {});
+  const actual = jugadorPorId(m[rol]);
+  const pos = actual ? actual.pos : rol[0];
+  const dentro = new Set(Object.values(m));
+  const resto = equipo.filter(j => !actual || j.id !== actual.id);
+  const mismos = resto.filter(j => j.pos === pos);
+  const otros  = resto.filter(j => j.pos !== pos);
+  const fila = j => `<div class="row"><span>${etiqueta(j)}<small style="color:var(--dim)">
+      · ${POS[j.pos]} · ${dentro.has(j.id) ? 'en pista' : 'banquillo'}</small></span>
+      <button data-id="${j.id}">Cambiar</button></div>`;
+  let h = `<p class="note" style="margin:0 0 10px">Puesto <b>${ROLNAME[rol]}</b> · ahora
+    <b>${actual ? etiqueta(actual) : 'vacío'}</b></p>`;
+  if(!resto.length) h += `<div class="empty">No hay nadie más en la plantilla.</div>`;
+  if(mismos.length) h += `<p class="note" style="margin:0 0 6px"><b>De su misma posición</b></p>` + mismos.map(fila).join('');
+  if(otros.length)  h += `<p class="note" style="margin:12px 0 6px">Resto de la plantilla</p>` + otros.map(fila).join('');
+  $('#m-title').textContent = actual ? `Cambiar a ${[actual.dorsal, actual.nombre].filter(Boolean).join(' · ')}` : 'Cubrir el puesto';
+  $('#m-list').innerHTML = h;
+  $('#m-list').onclick = ev => {
+    const b = ev.target.closest('button[data-id]'); if(!b) return;
+    const id = b.dataset.id;
+    const otroRol = Object.keys(m).find(k => m[k] === id) || null;
+    aplicaCambio({rol, id: m[rol] || null}, {rol: otroRol, id}, s);
+    trasCambiar();
+  };
+  $('#modal').classList.add('on');
+}
+
+// Por qué puesto entra alguien del banquillo.
+function abreEntrada(id, sys){
+  const s = sys || eSys;
+  const m = alin[s] || (alin[s] = {});
+  const j = jugadorPorId(id); if(!j) return;
+  const L = SYS[s].L;
+  const fila = rol => {
+    const q = jugadorPorId(m[rol.k]);
+    return `<div class="row"><span>${ROLNAME[rol.k]}<small style="color:var(--dim)">
+        · ${q ? etiqueta(q) : 'vacío'}</small></span>
+        <button data-rol="${rol.k}">Entra</button></div>`;
+  };
+  const mismos = L.filter(rol => rol.k[0] === j.pos);
+  const otros  = L.filter(rol => rol.k[0] !== j.pos);
+  let h = `<p class="note" style="margin:0 0 10px"><b>${etiqueta(j)}</b> · ${POS[j.pos]}</p>`;
+  if(mismos.length) h += `<p class="note" style="margin:0 0 6px"><b>Puestos de su posición</b></p>` + mismos.map(fila).join('');
+  if(otros.length)  h += `<p class="note" style="margin:12px 0 6px">Otros puestos</p>` + otros.map(fila).join('');
+  $('#m-title').textContent = `¿Por quién entra ${j.nombre || 'este jugador'}?`;
+  $('#m-list').innerHTML = h;
+  $('#m-list').onclick = ev => {
+    const b = ev.target.closest('button[data-rol]'); if(!b) return;
+    colocaEn(m, b.dataset.rol, id);
+    guardaEquipo(); trasCambiar();
+  };
+  $('#modal').classList.add('on');
+}
+
+function clicFicha(ev){
+  const b = ev.target.closest('.ficha'); if(!b) return;
+  if(!equipo.length) return;
+  if(b.dataset.rol)     abreCambio(b.dataset.rol, eSys);
+  else if(b.dataset.id) abreEntrada(b.dataset.id, eSys);
+}
+
+// Mismo cambio que en rotaciones, pero sobre una ficha de la pizarra.
+function abreCambioPizarra(pid){
+  if(!equipo.length) return;
+  const m = board.equipo || (board.equipo = {});
+  const actual = jugadorPorId(m[pid]);
+  const dentro = new Set(Object.values(m));
+  const resto = equipo.filter(j => !actual || j.id !== actual.id);
+  const mismos = actual ? resto.filter(j => j.pos === actual.pos) : [];
+  const otros  = resto.filter(j => !mismos.includes(j));
+  const fila = j => `<div class="row"><span>${etiqueta(j)}<small style="color:var(--dim)">
+      · ${POS[j.pos]} · ${dentro.has(j.id) ? 'en la pizarra' : 'fuera'}</small></span>
+      <button data-id="${j.id}">Cambiar</button></div>`;
+  let h = `<p class="note" style="margin:0 0 10px">Ficha <b>${pid.slice(1)}</b> · ahora
+    <b>${actual ? etiqueta(actual) : 'sin asignar'}</b></p>`;
+  if(!resto.length) h += `<div class="empty">No hay nadie más en la plantilla.</div>`;
+  if(mismos.length) h += `<p class="note" style="margin:0 0 6px"><b>De su misma posición</b></p>` + mismos.map(fila).join('');
+  if(otros.length)  h += `<p class="note" style="margin:12px 0 6px">Resto de la plantilla</p>` + otros.map(fila).join('');
+  if(actual) h += `<div class="row"><span>Dejar la ficha sin nombre</span><button data-id="">Quitar</button></div>`;
+  $('#m-title').textContent = actual
+    ? `Cambiar a ${[actual.dorsal, actual.nombre].filter(Boolean).join(' · ')}`
+    : 'Poner un jugador en esta ficha';
+  $('#m-list').innerHTML = h;
+  $('#m-list').onclick = ev => {
+    const b = ev.target.closest('button[data-id]'); if(!b) return;
+    const id = b.dataset.id;
+    if(!id){ delete m[pid]; }
+    else {
+      const otroPid = Object.keys(m).find(k => m[k] === id);
+      if(otroPid){                       // ya estaba en la pizarra: se permutan
+        const t = m[pid];
+        m[pid] = id;
+        if(t) m[otroPid] = t; else delete m[otroPid];
+      } else m[pid] = id;
+    }
+    closeModal(); syncStep(); drawPiz();
+  };
+  $('#modal').classList.add('on');
+}
+$('#e-alin').addEventListener('click', clicFicha);
+$('#e-banq').addEventListener('click', clicFicha);
+selESys.onchange = () => { eSys = selESys.value; renderEquipo(); };
+// Dos pasadas: primero cada puesto se lleva a quien juega ahí de verdad, y
+// solo después se rellenan los huecos con quien quede. Al revés, un comodín
+// se llevaría por delante a alguien que sí era de ese puesto.
+$('#e-auto').onclick = () => {
+  if(!equipo.length) return alert('Primero añade jugadores a la plantilla.');
+  const usados = new Set(), m = {}, roles = SYS[eSys].L;
+  roles.forEach(rol => {
+    const j = equipo.find(x => x.pos === rol.k[0] && !usados.has(x.id));
+    if(j){ m[rol.k] = j.id; usados.add(j.id); }
+  });
+  roles.forEach(rol => {
+    if(m[rol.k]) return;
+    const j = equipo.find(x => x.pos !== 'L' && !usados.has(x.id));
+    if(j){ m[rol.k] = j.id; usados.add(j.id); }
+  });
+  alin[eSys] = m;
+  guardaEquipo(); renderEquipo(); drawRot();
+};
+
+/* ================= GIRAR Y EXPONER ================= */
+function redibujar(){ drawPiz(); drawRot(); }
+function setLand(v){
+  LAND = v;
+  $$('.js-girar').forEach(b => b.classList.toggle('on', LAND));
+  DB.set('vb_land', LAND);
+  redibujar();
+}
+function setExpo(v){
+  EXPO = v;
+  document.body.classList.toggle('expo', EXPO);
+  $$('.js-expo').forEach(b => b.classList.toggle('on', EXPO));
+  // la pista cambia de tamaño al ocultarse los menús: hay que redibujar después
+  requestAnimationFrame(redibujar);
+}
+$$('.js-girar').forEach(b => b.onclick = () => setLand(!LAND));
+$$('.js-expo').forEach(b => b.onclick = () => setExpo(true));
+$('#ex-out').onclick   = () => setExpo(false);
+$('#ex-girar').onclick = () => setLand(!LAND);
+// en la pizarra pasan los pasos; en rotaciones, las rotaciones
+$('#ex-prev').onclick = () => { const v = vistaActiva(); $(v === 'piz' ? '#st-prev' : '#r-prev').click(); };
+$('#ex-next').onclick = () => { const v = vistaActiva(); $(v === 'piz' ? '#st-next' : '#r-next').click(); };
+document.addEventListener('keydown', e => { if(e.key === 'Escape' && EXPO) setExpo(false); });
+
+/* ================= RESTABLECER ================= */
+// Devuelve todo a como estaba al abrir la app, pero solo en la pantalla
+// que se está viendo. Nunca borra jugadas ni sesiones guardadas.
+function vistaActiva(){
+  const v = $('section.view.on');
+  return v ? v.id.slice(2) : 'piz';
+}
+$('#reset-all').onclick = () => {
+  stopPlay();
+  const v = vistaActiva();
+  if(v === 'piz'){
+    if(!confirm('¿Restablecer la pizarra?\n\nSe borran los trazos, los pasos y las posiciones actuales.\nLas jugadas guardadas no se tocan.')) return;
+    board = defaultBoard();
+    $('#p-rival').classList.add('on');
+    $('#p-ball').classList.add('on');
+    $('#st-trail').classList.add('on');
+    $('#p-equipo').classList.remove('on');
+    tool = 'sel';
+    $$('#piz-bar button[data-tool]').forEach(x => x.classList.toggle('on', x.dataset.tool === 'sel'));
+    drawPiz();
+  } else if(v === 'rot'){
+    if(!confirm('¿Restablecer las rotaciones?\n\nVuelven a la colocación por defecto los seis sistemas, en sus seis rotaciones y en saque y recepción.\nSe pierden los ajustes que hayas arrastrado.')) return;
+    rPos = {};
+    DB.set('vb_rot', rPos);
+    drawRot();
+  } else if(v === 'eq'){
+    if(!confirm('¿Restablecer la alineación de este sistema?\n\nLos puestos quedan sin asignar.\nLos jugadores de la plantilla no se borran.')) return;
+    delete alin[eSys];
+    guardaEquipo(); renderEquipo(); drawRot();
+  } else {
+    if(!confirm('¿Restablecer la sesión?\n\nSe vacían el título y todos los bloques.\nLas sesiones guardadas no se tocan.')) return;
+    ses = {t:'', d:new Date().toISOString().slice(0,10), b:[]};
+    renderSes();
+  }
+};
+
+/* ================= ARRANQUE ================= */
+$('#s-date').value = new Date().toISOString().slice(0,10);
+ses.d = $('#s-date').value;
+// De partida, la orientación que mejor aprovecha la pantalla; se recuerda la elección.
+LAND = DB.get('vb_land', window.innerWidth > window.innerHeight * 1.15);
+$$('.js-girar').forEach(b => b.classList.toggle('on', LAND));
+$('#r-rival').classList.toggle('on', rRival);
+drawPiz(); renderSes(); renderEquipo();
+window.addEventListener('resize', () => { drawPiz(); drawRot(); });
+</script>
+</body>
+</html>

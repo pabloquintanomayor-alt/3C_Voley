@@ -1,0 +1,8 @@
+# copias temporales que uso para previsualizar
+_tmp_*.html
+*.bak.html
+
+# basura del sistema
+Thumbs.db
+desktop.ini
+.DS_Store
