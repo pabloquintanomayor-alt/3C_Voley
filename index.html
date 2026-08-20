@@ -23,7 +23,12 @@ header{
   background:var(--panel); border-bottom:1px solid var(--line); flex:0 0 auto;
 }
 header h1{font-size:15px; margin:0; font-weight:650; letter-spacing:.2px}
-header h1 span{color:var(--acc)}
+header h1 .pt{color:var(--acc)}
+header h1 .ver{
+  margin-left:8px; font-size:11px; font-weight:600; letter-spacing:.4px;
+  color:var(--dim); background:var(--panel2); border:1px solid var(--line);
+  border-radius:6px; padding:2px 6px; vertical-align:2px; white-space:nowrap;
+}
 nav{display:flex; gap:4px; margin-left:auto}
 nav button{
   background:var(--panel2); color:var(--dim); border:1px solid var(--line);
@@ -40,7 +45,12 @@ nav button.on{background:var(--acc); color:#1b1405; border-color:var(--acc)}
 @media (min-width:600px){ #reset-all .lbl{display:inline} }
 /* Con cuatro pestañas, en móvil el título sobra antes que los botones */
 @media (max-width:620px){
-  header h1{display:none}
+  /* se va el título, se queda la versión: en la tablet quieres poder mirarla */
+  header{gap:6px; padding:8px 10px}
+  header h1{font-size:0; margin:0}
+  header h1 .pt{display:none}
+  /* sin chapa en móvil: solo el número, que cada píxel cuenta */
+  header h1 .ver{margin-left:0; background:none; border:none; padding:0; font-size:10.5px}
   nav button{padding:9px 9px; font-size:12.5px}
 }
 main{flex:1 1 auto; min-height:0; position:relative}
@@ -182,7 +192,7 @@ h4.secc:first-child{margin-top:0}
 <body>
 
 <header>
-  <h1>Vóley <span>·</span> Táctica</h1>
+  <h1>Vóley <span class="pt">·</span> Táctica<span class="ver" id="app-ver"></span></h1>
   <nav>
     <button data-tab="piz" class="on">Pizarra</button>
     <button data-tab="rot">Rotaciones</button>
@@ -323,6 +333,11 @@ h4.secc:first-child{margin-top:0}
 
 <script>
 "use strict";
+/* ================= VERSIÓN =================
+   Se sube con cada paquete de cambios que desplegamos.
+   Es el único sitio donde vive el número: la cabecera lo lee de aquí.  */
+const VERSION = '1.0';
+
 const $ = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
 
@@ -1911,6 +1926,7 @@ $('#reset-all').onclick = () => {
 $('#s-date').value = new Date().toISOString().slice(0,10);
 ses.d = $('#s-date').value;
 // De partida, la orientación que mejor aprovecha la pantalla; se recuerda la elección.
+$('#app-ver').textContent = 'v' + VERSION;
 LAND = DB.get('vb_land', window.innerWidth > window.innerHeight * 1.15);
 $$('.js-girar').forEach(b => b.classList.toggle('on', LAND));
 $('#r-rival').classList.toggle('on', rRival);
