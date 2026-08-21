@@ -61,15 +61,6 @@ nav button.on{background:var(--acc); color:#1b1405; border-color:var(--acc)}
   nav button{padding:9px 9px; font-size:12.5px}
 }
 main{flex:1 1 auto; min-height:0; position:relative}
-/* En pantallas táctiles todo lo que se toca sube a 44 px, el mínimo cómodo
-   para un dedo. En ratón 34 px bastan y ahorran alto de pantalla. */
-@media (pointer: coarse){
-  nav button{min-height:44px}
-  .bar button, .bar select{min-height:44px}
-  #reset-all{min-height:44px}
-  .jug .mini, .blk .top .mini{height:44px}
-  .modal .row button{min-height:40px}
-}
 section.view{position:absolute; inset:0; display:none; flex-direction:column; min-height:0}
 section.view.on{display:flex}
 
@@ -194,6 +185,18 @@ h4.secc:first-child{margin-top:0}
   section.view.split .side{grid-column:2; grid-row:1 / span 2; width:auto; max-height:none;
     border-top:none; border-left:1px solid var(--line); padding:12px 14px}
 }
+/* Va al final a propósito: con la misma especificidad gana la última regla,
+   así que puesto antes no anulaba nada. En pantallas táctiles todo lo que se
+   toca sube a 44 px, el mínimo cómodo para un dedo; con ratón 34 bastan. */
+@media (pointer: coarse){
+  nav button{min-height:44px}
+  .bar button, .bar select{min-height:44px}
+  #reset-all{min-height:44px}
+  .jug .mini, .blk .top .mini{height:44px}
+  .modal .row button{min-height:40px}
+  .expobar button{min-height:48px}
+}
+
 @media print{
   body{background:#fff; color:#000; overflow:visible; height:auto}
   header,nav,.bar,.tot,.modal{display:none !important}
@@ -352,7 +355,7 @@ h4.secc:first-child{margin-top:0}
 /* ================= VERSIÓN =================
    Se sube con cada paquete de cambios que desplegamos.
    Es el único sitio donde vive el número: la cabecera lo lee de aquí.  */
-const VERSION = '1.1';
+const VERSION = '1.2';
 
 const $ = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
