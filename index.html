@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Vóley · Táctica</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#172233">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Vóley">
 <style>
 :root{
   --bg:#0d1420; --bg2:#16203150; --panel:#172233; --panel2:#1f2c40;
@@ -54,6 +61,15 @@ nav button.on{background:var(--acc); color:#1b1405; border-color:var(--acc)}
   nav button{padding:9px 9px; font-size:12.5px}
 }
 main{flex:1 1 auto; min-height:0; position:relative}
+/* En pantallas táctiles todo lo que se toca sube a 44 px, el mínimo cómodo
+   para un dedo. En ratón 34 px bastan y ahorran alto de pantalla. */
+@media (pointer: coarse){
+  nav button{min-height:44px}
+  .bar button, .bar select{min-height:44px}
+  #reset-all{min-height:44px}
+  .jug .mini, .blk .top .mini{height:44px}
+  .modal .row button{min-height:40px}
+}
 section.view{position:absolute; inset:0; display:none; flex-direction:column; min-height:0}
 section.view.on{display:flex}
 
@@ -336,7 +352,7 @@ h4.secc:first-child{margin-top:0}
 /* ================= VERSIÓN =================
    Se sube con cada paquete de cambios que desplegamos.
    Es el único sitio donde vive el número: la cabecera lo lee de aquí.  */
-const VERSION = '1.0';
+const VERSION = '1.1';
 
 const $ = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
@@ -1927,6 +1943,10 @@ $('#s-date').value = new Date().toISOString().slice(0,10);
 ses.d = $('#s-date').value;
 // De partida, la orientación que mejor aprovecha la pantalla; se recuerda la elección.
 $('#app-ver').textContent = 'v' + VERSION;
+// Registro del service worker: es lo que hace que funcione sin cobertura.
+// Le pasamos la versión en la URL para que un despliegue nuevo lo renueve solo.
+if('serviceWorker' in navigator)
+  navigator.serviceWorker.register('sw.js?v=' + VERSION).catch(() => {});
 LAND = DB.get('vb_land', window.innerWidth > window.innerHeight * 1.15);
 $$('.js-girar').forEach(b => b.classList.toggle('on', LAND));
 $('#r-rival').classList.toggle('on', rRival);
